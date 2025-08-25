@@ -109,7 +109,7 @@ async def process_data(content: ProcessRequest):
                     if value is None or value == '' or (isinstance(value, str) and value.strip() == ''):
                         row[key] = '0'  # Replace missing values with '0'
             print("Filled missing values with '0'")
-    
+    #  uvicorn app:app --reload
     # Standardize formats if selected
     if content.dictionary.get('standardizeFormats', 0) == 1:
         for row in cleaned_data:

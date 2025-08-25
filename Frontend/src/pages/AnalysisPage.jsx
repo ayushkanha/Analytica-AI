@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Send, Bot, User, Database } from 'lucide-react';
+import Plot from 'react-plotly.js';
 
 const AnalysisPage = ({ cleanedData }) => {
   const [messages, setMessages] = useState([
@@ -27,7 +28,7 @@ const AnalysisPage = ({ cleanedData }) => {
     }
   }, [cleanedData]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (inputValue.trim()) {
       const newMessage = {
         id: messages.length + 1,
@@ -37,18 +38,72 @@ const AnalysisPage = ({ cleanedData }) => {
       };
       
       setMessages(prev => [...prev, newMessage]);
+      const currentInput = inputValue;
       setInputValue('');
 
-      // Simulate AI response
-      setTimeout(() => {
-        const aiResponse = {
+      // Add loading message
+      const loadingMessage = {
+        id: messages.length + 2,
+        type: 'ai',
+        content: "Analyzing your data...",
+        timestamp: new Date(),
+        isLoading: true
+      };
+      setMessages(prev => [...prev, loadingMessage]);
+
+      try {
+        // Send request to backend
+        const response = await fetch('http://localhost:8000/analytics', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            data: cleanedData || [],
+            dictionary: {
+              query: currentInput
+            }
+          })
+        });
+
+        const result = await response.json();
+        
+        // Remove loading message
+        setMessages(prev => prev.filter(msg => !msg.isLoading));
+
+        if (result.status === 'success') {
+          // Add AI response with visualization
+          const aiResponse = {
+            id: messages.length + 2,
+            type: 'ai',
+            content: result.message,
+            timestamp: new Date(),
+            visualization: result.visualization
+          };
+          setMessages(prev => [...prev, aiResponse]);
+        } else {
+          // Add error message
+          const errorMessage = {
+            id: messages.length + 2,
+            type: 'ai',
+            content: `Error: ${result.message}`,
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, errorMessage]);
+        }
+      } catch (error) {
+        // Remove loading message
+        setMessages(prev => prev.filter(msg => !msg.isLoading));
+        
+        // Add error message
+        const errorMessage = {
           id: messages.length + 2,
           type: 'ai',
-          content: "I understand you're asking about your data. Based on the dataset you uploaded, I can provide insights about patterns, trends, and correlations. Would you like me to create a specific visualization or analysis?",
+          content: `Failed to connect to server: ${error.message}`,
           timestamp: new Date()
         };
-        setMessages(prev => [...prev, aiResponse]);
-      }, 1000);
+        setMessages(prev => [...prev, errorMessage]);
+      }
     }
   };
 
@@ -110,6 +165,38 @@ const AnalysisPage = ({ cleanedData }) => {
                     : 'bg-teal-500 text-white'
                 }`}>
                   <p className="leading-relaxed">{message.content}</p>
+                  
+                  {/* Display visualization if present */}
+                  {message.visualization && (
+                    <div className="mt-4">
+                      {message.visualization.type === 'Graph' && (
+                        console.log("Rendering plot with data:", JSON.parse(message.visualization.plot).data) ||
+  <Plot
+    data={JSON.parse(message.visualization.plot).data}
+    layout={{
+      ...JSON.parse(message.visualization.plot).layout,
+      width: 600,
+      height: 400,
+      margin: { l: 50, r: 50, t: 50, b: 50 }
+    }}
+    config={{ displayModeBar: true }}
+  />
+)}
+                      {message.visualization.type === 'Text' && (
+                        <div className="text-gray-200">
+                          {message.visualization.text}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Loading indicator */}
+                  {message.isLoading && (
+                    <div className="mt-4 flex items-center space-x-2 text-teal-400">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-teal-400"></div>
+                      <span className="text-sm">Processing...</span>
+                    </div>
+                  )}
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
                   {message.timestamp.toLocaleTimeString()}

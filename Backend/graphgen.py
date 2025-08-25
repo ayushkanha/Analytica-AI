@@ -27,7 +27,7 @@ def visualize(df,query):
         "sample": df.head(5).to_dict(orient="records")
     }
 
-
+    print("DataFrame Summary:", summary)
     prompt = PromptTemplate(
         input_variables=["query", "columns", "summary"],
         template="""
@@ -79,27 +79,21 @@ def visualize(df,query):
         "columns": list(df.columns),
         "summary": summary
     })
+
     code = result.content
+    print("Generated Code:\n", code)
     if code.startswith("```"):
         code = code.strip("`")       # remove backticks
         code = code.split("python")[-1].strip()
     # Execute safely
     local_env = {"pd": pd, "df": df, "px": px}
     exec(code, local_env)
-    fig= local_env.get("fig")
- 
-    data, count = supabase.table("messages").insert({
-        "user_message": query,
-        "responce": {"type":"Graph","plot": fig.to_plotly_json()},
-        "chat_id": 1,
-        "error": None
-    }).execute()
-
-    print(data)
-
-    return {"type":"Graph","plot": fig.to_plotly_json()}
+    fig = local_env.get("fig")
+    print("Generated Figure:", fig)
+    fig_json = json.loads(fig.to_json())
+    if fig is None:
+        raise ValueError("No figure was generated")
+    return {"type": "Graph", "plot": fig.to_json()}
 
 
-df=pd.read_csv("cleaned_data.csv")
-query="what is realtion between age and survived"
-fig=print(visualize(df,query))
+

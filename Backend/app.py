@@ -6,7 +6,8 @@ import tempfile
 import os
 import json
 from cleaning import agent_cleaning
-
+import pandas as pd
+from graphgen import visualize
 # Define request body model
 class ProcessRequest(BaseModel):
     data: List[Dict[str, Any]]  # Changed from str to List[Dict[str, Any]] to match frontend
@@ -198,3 +199,48 @@ def apply_ai_magic(data):
     return unique_data
 
 # Run with: uvicorn app:app --reload
+@app.post("/analytics")
+async def analytics(content: ProcessRequest):
+    print("Received analytics request:", len(content.data), "rows")
+    
+    try:
+        # Extract the user query from the dictionary
+        user_query = content.dictionary.get('query', '')
+        if not user_query:
+            return {
+                "status": "error",
+                "message": "No query provided"
+            }
+        df = pd.DataFrame(content.data)
+        
+        from querycheck import pool 
+        pool_res= pool(user_query)
+        if pool_res == "yes":
+            print("Generating visualization for query:", user_query)
+            print("DataFrame columns:", df)
+            result = visualize(df, user_query)
+            print(result)
+            return {
+                "status": "success",
+                "message": f"Generated visualization for: {user_query}",
+                "visualization": result,
+                "query": user_query,
+                "type": "visualization"
+            }
+        else:
+            from texanswer import analyze
+            result = analyze(df,user_query)
+            print("Visualization result type:", type(result))
+            return {
+                "status": "success", 
+                "message": result["answer"],
+                "query": user_query,
+                "type": "text"
+            }
+        
+    except Exception as e:
+        print(f"Analytics error: {e}")
+        return {
+            "status": "error",
+            "message": f"Failed to generate visualization: {str(e)}"
+        }

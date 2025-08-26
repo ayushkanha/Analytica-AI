@@ -49,6 +49,8 @@ def visualize(df,query):
         2. **Code structure**
         - Always import `plotly.express as px` at the top.
         - Create a Plotly Express figure and assign it to a variable named `fig`.
+        - Apply a **dark theme** using `fig.update_layout(template="plotly_dark")`.
+        - Use a **vivid color sequence** such as `color_discrete_sequence=px.colors.qualitative.Vivid` when applicable.
         - Do not call `fig.show()` or any display-related functions.
         - Do not include explanations, comments, or natural language in the output. Only output valid Python code.
         - Ensure the code is syntactically correct and executable.
@@ -57,6 +59,10 @@ def visualize(df,query):
         - Choose an appropriate Plotly Express function (`px.scatter`, `px.bar`, `px.histogram`, `px.line`, etc.) based on the user’s request.
         - Ensure all x-axis, y-axis, color, and facet arguments reference valid columns in `df`.
         - If aggregation or grouping is required, use Plotly Express arguments (`histfunc`, `marginal`, `facet_col`, etc.) instead of manually creating grouped data unless explicitly necessary.
+        - Make the graphs **informative** by:
+            - Adding axis labels (`labels` argument).
+            - Adding titles (`title` argument in `update_layout`).
+            - Adding legends when multiple categories are shown.
         - Do not generate empty plots.
 
         4. **Error prevention**
@@ -71,6 +77,7 @@ def visualize(df,query):
         Only output valid Python code that follows the above rules.
             """
     )
+
 
 
     chain = prompt | llm

@@ -1,36 +1,59 @@
 
 import pandas as pd
+import numpy as np
 import os
 
-# 1. Loads the dataset
-input_path = r"C:\Users\ayush\AppData\Local\Temp\tmplu5mfojg.csv"
-df = pd.read_csv(input_path)
+# Define the dataset path
+file_path = r"C:\Users\ayush\AppData\Local\Temp\tmp8hxsuyi9.csv"
 
-# 2. Cleans the data appropriately
-# Based on the provided summary:
-# - Missing values: The 'missing_counts' dictionary shows 0 missing values for all columns.
-# - Duplicates: The 'duplicates' count is 0, indicating no duplicate rows.
-# - Inconsistent formats: Data types ('dtypes') appear appropriate for each column (e.g., 'Age' and 'Fare' are float64, IDs and counts are int64, text columns are objects). No obvious inconsistencies are present in the sample data.
-# - Outliers: The summary does not provide enough statistical information (like min/max, quartiles) to detect outliers, but the sample data looks reasonable for a Titanic dataset. Without specific thresholds or domain knowledge, no outlier treatment is applied.
+# 1. Load the dataset
+df = pd.read_csv(file_path)
 
-# Given that the dataset summary indicates no missing values, no duplicates, and appropriate data types,
-# no explicit data cleaning steps (like imputation, dropping duplicates, or type conversions) are required
-# based on the information provided. The dataset appears to be remarkably clean already.
-# We will proceed by simply creating a copy, as no modifications are needed.
-cleaned_df = df.copy()
+# 2. Clean the data appropriately
 
-# 3. Saves the cleaned dataset as "output.csv" in the same directory
-output_dir = os.path.dirname(input_path)
-output_path = os.path.join(output_dir, "output.csv")
-cleaned_df.to_csv(output_path, index=False)
+# Handle Missing Values:
+# --- Age Column ---
+# 'Age' has 177 missing values. Given it's a numerical column,
+# imputation with the median is a robust choice, less sensitive to outliers than the mean.
+median_age = df['Age'].median()
+df['Age'].fillna(median_age, inplace=True)
 
-# 4. Prints summary stats after cleaning
+# --- Cabin Column ---
+# 'Cabin' has a very high number of missing values (687 out of 891, ~77%).
+# Imputing with a placeholder like 'U' (for Unknown) is a common strategy
+# to retain the column while indicating missingness, rather than dropping it entirely.
+df['Cabin'].fillna('U', inplace=True)
+
+# --- Embarked Column ---
+# 'Embarked' has 2 missing values. Given it's a categorical column and a small number
+# of missing values, imputation with the mode (most frequent value) is appropriate.
+mode_embarked = df['Embarked'].mode()[0] # .mode() returns a Series, take the first element
+df['Embarked'].fillna(mode_embarked, inplace=True)
+
+# Duplicates:
+# The summary states 0 duplicates, so no action is needed for duplicates.
+
+# Inconsistent Formats & Outliers:
+# Based on the summary, there are no immediate obvious inconsistent formats
+# that require cleaning beyond handling missing values.
+# Outlier detection and handling for 'Age' or 'Fare' could be a next step
+# for more advanced analysis, but for basic cleaning, addressing missing values
+# is the primary focus given the initial summary.
+
+# 3. Save the cleaned dataset as "output.csv" in the same directory
+output_directory = os.path.dirname(file_path)
+output_file_path = os.path.join(output_directory, "output.csv")
+df.to_csv(output_file_path, index=False)
+
+# 4. Print summary stats after cleaning
 print("--- Summary Statistics After Cleaning ---")
-print(f"Rows: {cleaned_df.shape[0]}")
-print(f"Columns: {cleaned_df.shape[1]}")
+print(f"Number of rows: {df.shape[0]}")
+print(f"Number of columns: {df.shape[1]}")
 
-print("\nMissing counts per column:")
-print(cleaned_df.isnull().sum())
+print("\nMissing values per column:")
+print(df.isnull().sum())
 
 print("\nData types per column:")
-print(cleaned_df.dtypes)
+print(df.dtypes)
+
+print(f"\nCleaned data saved to: {output_file_path}")

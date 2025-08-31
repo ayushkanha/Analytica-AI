@@ -1,0 +1,27 @@
+html, body {
+
+  /* disables outer scrollbar */
+}
+/* global.css */
+::-webkit-scrollbar {
+  width: 6px;  /* thin scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: #111827; /* matches bg-gray-900 */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1f2937; /* matches bg-gray-800 */
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #374151; /* slightly visible on hover */
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #1f2937 #111827;
+}

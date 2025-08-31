@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import { ChevronDown, User } from 'lucide-react';
+import { SignedIn, SignedOut, SignInButton, UserButton,SignIn } from '@clerk/clerk-react'
 
-const Navbar = ({ activePage, setActivePage }) => {
+const Navbar = ({ activePage, setActivePage, handleNavigateToCleaning }) => {
   const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false);
 
   const handleNavClick = (page) => {
-    setActivePage(page);
+    if (page === 'cleaning') {
+      handleNavigateToCleaning();
+    } else {
+      setActivePage(page);
+    }
     setIsProductDropdownOpen(false);
   };
 
@@ -65,12 +70,19 @@ const Navbar = ({ activePage, setActivePage }) => {
             )}
           </div>
         </div>
-
+        <SignedOut>
+          <SignInButton>
+            <button className="flex items-center space-x-2 bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+              <User className="w-4 h-4" />
+              <span>Login</span>
+            </button>
+          </SignInButton>
+        </SignedOut>
+        <SignedIn>
+          <UserButton />
+        </SignedIn>     
         {/* Login Button */}
-        <button className="flex items-center space-x-2 bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">
-          <User className="w-4 h-4" />
-          <span>Login</span>
-        </button>
+        
       </div>
     </nav>
   );

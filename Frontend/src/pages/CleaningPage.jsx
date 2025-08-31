@@ -3,8 +3,7 @@ import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { Upload, FileSpreadsheet, Check, Loader2, FileText, FileSpreadsheet as ExcelIcon } from 'lucide-react';
 
-const CleaningPage = ({ setActivePage, setCleanedData }) => {
-  const [isUploaded, setIsUploaded] = useState(false);
+const CleaningPage = ({ setActivePage, setCleanedData, c_id }) => {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [parsedData, setParsedData] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -120,6 +119,11 @@ const CleaningPage = ({ setActivePage, setCleanedData }) => {
 
   // Send data and dictionary to Flask backend
   const handleProcess = async () => {
+    if (!c_id) {
+      alert('Error: No chat session found. Please go back to the home page and start a new analysis.');
+      return;
+    }
+
     if (!parsedData || !parsedData.rows || parsedData.rows.length === 0) {
       alert('No data to process!');
       return;
@@ -129,6 +133,7 @@ const CleaningPage = ({ setActivePage, setCleanedData }) => {
     const payload = {
       data: parsedData.rows,
       dictionary: buildDictionary(),
+      c_id: c_id,
     };
     console.log('Process button clicked. Sending payload:', payload);
     
@@ -191,7 +196,6 @@ const CleaningPage = ({ setActivePage, setCleanedData }) => {
   // Handle file upload (used by both drag & drop and file input)
   const handleFileUpload = async (file) => {
     setUploadedFile(file);
-    setIsUploaded(true);
     
     try {
       // Use the universal parser

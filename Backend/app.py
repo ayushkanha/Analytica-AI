@@ -1,137 +1,201 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Dict, Any, List
-import tempfile
-import os
-import json
-from cleaning import agent_cleaning
+from typing import List, Dict, Any
+import cleaning
+import querycheck
+import graphgen
+import texanswer
 import pandas as pd
-from graphgen import visualize
-# Define request body model
-class ProcessRequest(BaseModel):
-    data: List[Dict[str, Any]]  # Changed from str to List[Dict[str, Any]] to match frontend
-    dictionary: Dict[str, Any]
+import json
+from supabase import create_client, Client
+import os
+from dotenv import load_dotenv
+import tempfile
+from cleaning import agent_cleaning
+load_dotenv()
+
+# Supabase setup
+url: str = os.getenv("SUPABASE_URL")
+key: str = os.getenv("SUPABASE_KEY")
+if not url or not key:
+    raise ValueError("Supabase URL and Key must be set in environment variables.")
+supabase: Client = create_client(url, key)
 
 app = FastAPI()
 
-# Enable CORS for all routes
+@app.on_event("startup")
+async def startup_event():
+    try:
+        # Check if the 'Chat' table exists
+        supabase.table('Chat').select('*', head=True).execute()
+    except Exception as e:
+        print("Error connecting to Supabase or finding 'Chat' table:")
+        print(e)
+        # You might want to raise an exception here to prevent the app from starting
+        # raise e
+
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # You can restrict this later to specific domains
+    allow_origins=["*"],  # Allows all origins
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
 )
+
+class ProcessRequest(BaseModel):
+    data: List[Dict[str, Any]]
+    dictionary: Dict[str, Any]
+    c_id: str
+
+class QueryRequest(BaseModel):
+    query: str
+    df: List[Dict[str, Any]]
+
+class TextRequest(BaseModel):
+    query: str
+    df: List[Dict[str, Any]]
+    c_id: str
+
+class ChatName(BaseModel):
+    name: str
+
+@app.post("/chat")
+async def create_chat(chat_name: ChatName):
+    try:
+        response = supabase.table('Chat').insert({"name": chat_name.name}).execute()
+        if response.data:
+            return {"c_id": response.data[0]['c_id']}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to create chat in Supabase")
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=f"Error creating chat: {e}")
+
+@app.get("/chats")
+async def get_chats():
+    try:
+        response = supabase.table('Chat').select("*").execute()
+        return response.data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/chat/{c_id}/messages")
+async def get_chat_messages(c_id: int):
+    try:
+        response = supabase.table('messages').select("*").eq('c_id', c_id).order('created_at').execute()
+        return response.data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/process")
 async def process_data(content: ProcessRequest):
     print("Received data:", len(content.data), "rows")
     print("Received dictionary:", content.dictionary)
     
-    # Process the data based on selected options
-    cleaned_data = content.data.copy()  # Start with original data
+
+    cleaned_data = content.data.copy()  
     
-    # AI Magic - Let AI decide the best approach for all cleaning tasks
-    if content.dictionary.get('aiMagic', 0) == 1:
-        print("AI Magic mode activated - applying intelligent data cleaning")
-        # AI Magic will override other options and apply smart cleaning
-        
-        # Create a temporary CSV file from the data for agent_cleaning
-        import pandas as pd
-        df = pd.DataFrame(content.data)
-        
-        # Create temporary file
-        temp_fd, temp_path = tempfile.mkstemp(suffix=".csv")
-        os.close(temp_fd)
-        
-        try:
-            # Save data to temporary CSV
-            df.to_csv(temp_path, index=False)
+    try:
+        if content.dictionary.get('aiMagic', 0) == 1:
+            print("AI Magic mode activated - applying intelligent data cleaning")
+    
+            import pandas as pd
+            df = pd.DataFrame(content.data)
             
-            # Use agent_cleaning function
-            cleaned_df = agent_cleaning(temp_path)
+            # Create temporary file
+            temp_fd, temp_path = tempfile.mkstemp(suffix=".csv")
+            os.close(temp_fd)
             
-            # Convert back to list of dictionaries
-            cleaned_data = cleaned_df.to_dict('records')
-            
-            # Clean up temporary file
-            os.unlink(temp_path)
-            
-            return {
-                "status": "success", 
-                "message": f"AI Magic processed {len(cleaned_data)} rows using advanced AI cleaning",
-                "cleaned_data": cleaned_data,
-                "original_count": len(content.data),
-                "cleaned_count": len(cleaned_data),
-                "ai_magic_applied": True
-            }
-        except Exception as e:
-            print(f"AI Magic error: {e}")
-            # Clean up temporary file on error
-            if os.path.exists(temp_path):
+            try:
+                # Save data to temporary CSV
+                df.to_csv(temp_path, index=False)
+                
+                # Use agent_cleaning function
+                cleaned_df = agent_cleaning(temp_path)
+                
+                # Convert back to list of dictionaries
+                cleaned_data = cleaned_df.to_dict('records')
+                
+                # Clean up temporary file
                 os.unlink(temp_path)
-            # Fall back to basic AI magic
-            cleaned_data = apply_ai_magic(content.data)
-            return {
-                "status": "success", 
-                "message": f"AI Magic processed {len(cleaned_data)} rows (fallback mode)",
-                "cleaned_data": cleaned_data,
-                "original_count": len(content.data),
-                "cleaned_count": len(cleaned_data),
-                "ai_magic_applied": True
-            }
-    
-    # Remove duplicates if selected
-    if content.dictionary.get('removeDuplicates', 0) == 1:
-        # Convert each row to a tuple for hashing, then back to dict
-        seen = set()
-        unique_data = []
-        for row in cleaned_data:
-            # Create a hashable representation of the row
-            row_tuple = tuple(sorted(row.items()))
-            if row_tuple not in seen:
-                seen.add(row_tuple)
-                unique_data.append(row)
-        cleaned_data = unique_data
-        print(f"Removed {len(content.data) - len(cleaned_data)} duplicate rows")
-    
-    # Handle missing values if selected
-    if content.dictionary.get('handleMissing', 0) == 1:
-        missing_strategy = content.dictionary.get('missingStrategy', 'fill')  # 'fill' or 'remove'
-        if missing_strategy == 'remove':
-            # Remove rows with missing values
-            cleaned_data = [row for row in cleaned_data if not has_missing_values(row)]
-            print(f"Removed rows with missing values. Remaining: {len(cleaned_data)} rows")
-        else:
-            # Fill missing values
+                
+                return {
+                    "status": "success", 
+                    "message": f"AI Magic processed {len(cleaned_data)} rows using advanced AI cleaning",
+                    "cleaned_data": cleaned_data,
+                    "original_count": len(content.data),
+                    "cleaned_count": len(cleaned_data),
+                    "ai_magic_applied": True
+                }
+            except Exception as e:
+                print(f"AI Magic error: {e}")
+                # Clean up temporary file on error
+                if os.path.exists(temp_path):
+                    os.unlink(temp_path)
+                # Fall back to basic AI magic
+                cleaned_data = apply_ai_magic(content.data)
+                return {
+                    "status": "success", 
+                    "message": f"AI Magic processed {len(cleaned_data)} rows (fallback mode)",
+                    "cleaned_data": cleaned_data,
+                    "original_count": len(content.data),
+                    "cleaned_count": len(cleaned_data),
+                    "ai_magic_applied": True
+                }
+        
+        # Remove duplicates if selected
+        if content.dictionary.get('removeDuplicates', 0) == 1:
+            # Convert each row to a tuple for hashing, then back to dict
+            seen = set()
+            unique_data = []
+            for row in cleaned_data:
+                # Create a hashable representation of the row
+                row_tuple = tuple(sorted(row.items()))
+                if row_tuple not in seen:
+                    seen.add(row_tuple)
+                    unique_data.append(row)
+            cleaned_data = unique_data
+            print(f"Removed {len(content.data) - len(cleaned_data)} duplicate rows")
+        
+        # Handle missing values if selected
+        if content.dictionary.get('handleMissing', 0) == 1:
+            missing_strategy = content.dictionary.get('missingStrategy', 'fill')  # 'fill' or 'remove'
+            if missing_strategy == 'remove':
+                # Remove rows with missing values
+                cleaned_data = [row for row in cleaned_data if not has_missing_values(row)]
+                print(f"Removed rows with missing values. Remaining: {len(cleaned_data)} rows")
+            else:
+                # Fill missing values
+                for row in cleaned_data:
+                    for key, value in row.items():
+                        if value is None or value == '' or (isinstance(value, str) and value.strip() == ''):
+                            row[key] = '0' 
+                print("Filled missing values with '0'")
+
+        if content.dictionary.get('standardizeFormats', 0) == 1:
             for row in cleaned_data:
                 for key, value in row.items():
-                    if value is None or value == '' or (isinstance(value, str) and value.strip() == ''):
-                        row[key] = '0'  # Replace missing values with '0'
-            print("Filled missing values with '0'")
-    #  uvicorn app:app --reload
-    # Standardize formats if selected
-    if content.dictionary.get('standardizeFormats', 0) == 1:
-        for row in cleaned_data:
-            for key, value in row.items():
-                if isinstance(value, str):
-                    # Basic text standardization
-                    row[key] = value.strip().title()
-        print("Standardized text formats")
-    
-    # Remove outliers if selected (basic implementation)
-    if content.dictionary.get('removeOutliers', 0) == 1:
-        # This is a simplified outlier removal - in practice you'd want more sophisticated logic
-        print("Outlier removal selected (basic implementation)")
-    
-    return {
-        "status": "success", 
-        "message": f"Processed {len(cleaned_data)} rows",
-        "cleaned_data": cleaned_data,
-        "original_count": len(content.data),
-        "cleaned_count": len(cleaned_data)
-    }
+                    if isinstance(value, str):
+                        # Basic text standardization
+                        row[key] = value.strip().title()
+            print("Standardized text formats")
+
+        if content.dictionary.get('removeOutliers', 0) == 1:
+
+            print("Outlier removal selected (basic implementation)")
+        
+        return {
+            "status": "success", 
+            "message": f"Processed {len(cleaned_data)} rows",
+            "cleaned_data": cleaned_data,
+            "original_count": len(content.data),
+            "cleaned_count": len(cleaned_data)
+        }
+    except Exception as e:
+        print(f"Error processing data: {e}")
+        return {"status": "error", "message": str(e)}
 
 def has_missing_values(row):
     """Check if a row has any missing values"""
@@ -139,7 +203,6 @@ def has_missing_values(row):
         if value is None or value == '' or (isinstance(value, str) and value.strip() == ''):
             return True
     return False
-
 def apply_ai_magic(data):
     print(data)
     """Apply intelligent AI-powered data cleaning"""
@@ -197,50 +260,51 @@ def apply_ai_magic(data):
     
     print(f"AI Magic: Removed {len(cleaned_data) - len(unique_data)} duplicate rows")
     return unique_data
-
-# Run with: uvicorn app:app --reload
-@app.post("/analytics")
-async def analytics(content: ProcessRequest):
-    print("Received analytics request:", len(content.data), "rows")
-    
+@app.post("/query")
+async def check_query(request: QueryRequest):
     try:
-        # Extract the user query from the dictionary
-        user_query = content.dictionary.get('query', '')
-        if not user_query:
-            return {
-                "status": "error",
-                "message": "No query provided"
-            }
-        df = pd.DataFrame(content.data)
-        
-        from querycheck import pool 
-        pool_res= pool(user_query)
-        if pool_res == "yes":
-            print("Generating visualization for query:", user_query)
-            print("DataFrame columns:", df)
-            result = visualize(df, user_query)
-            print(result)
-            return {
-                "status": "success",
-                "message": f"Generated visualization for: {user_query}",
-                "visualization": result,
-                "query": user_query,
-                "type": "visualization"
-            }
-        else:
-            from texanswer import analyze
-            result = analyze(df,user_query)
-            print("Visualization result type:", type(result))
-            return {
-                "status": "success", 
-                "message": result["answer"],
-                "query": user_query,
-                "type": "text"
-            }
-        
+        result = querycheck.handle_query(request.query, pd.DataFrame(request.df))
+        return {"status": "success", "result": result}
     except Exception as e:
-        print(f"Analytics error: {e}")
-        return {
-            "status": "error",
-            "message": f"Failed to generate visualization: {str(e)}"
-        }
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/analytics")
+async def generate_graph(request: TextRequest):
+    try:
+        df = pd.DataFrame(request.df)
+        query = request.query
+        c_id = request.c_id
+        
+        # Check if the query is for a graph
+        is_graph = querycheck.pool(query)
+        
+        response_data = None
+        if is_graph == "yes":
+            # Generate graph
+            graph_code = graphgen.visualize(df, query)
+            
+            # Execute the generated code
+            exec_globals = {'pd': pd, 'df': df, 'go': None, 'px': None, 'fig': None}
+            exec(graph_code, exec_globals)
+            fig = exec_globals.get('fig')
+            
+            if fig:
+                response_data = {"type": "plot", "data": json.loads(fig.to_json())}
+            else:
+                response_data = {"type": "text", "data": "Could not generate graph."}
+        else:
+            # Generate text answer
+            text_answer = texanswer.analyze(df,query)
+            response_data = {"type": "text", "data": text_answer}
+
+        # Save message to Supabase
+        supabase.table('messages').insert({
+            "user_message": query,
+            "response": response_data,
+            "c_id": c_id
+        }).execute()
+
+        return response_data
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

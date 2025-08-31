@@ -80,16 +80,4 @@ def analyze(df, query):
         "query": query,
         "result": result_df.to_dict(orient="records") if hasattr(result_df, "to_dict") else str(result_df)
     }).content.strip()
-
-    # Step 4: Store in Supabase
-    data, count = supabase.table("messages").insert({
-        "user_message": query,
-        "responce": {"type": "Text", "pandas_query": query_code, "answer": answer},
-        "chat_id": 1,
-        "error": None
-    }).execute()
-
-    print(data)
-
-    return {"type": "Text", "pandas_query": query_code, "answer": answer}
-
+    return answer

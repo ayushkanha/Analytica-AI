@@ -1,7 +1,7 @@
 import React from 'react';
 import { Plus, FileText, Calendar, Eye } from 'lucide-react';
 
-const ReportPage = () => {
+const ReportPage = ({ setActivePage }) => {
   const mockReports = [
     {
       id: 1,
@@ -56,10 +56,18 @@ const ReportPage = () => {
             <h1 className="text-4xl font-bold text-gray-200 mb-2">My Reports</h1>
             <p className="text-gray-400">Manage and view your generated reports</p>
           </div>
-          <button className="flex items-center space-x-2 bg-teal-500 hover:bg-teal-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
-            <Plus className="w-5 h-5" />
-            <span>Create New Report</span>
-          </button>
+          <div className="flex items-center space-x-4">
+            <button 
+              onClick={() => setActivePage('dashboard')}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200"
+            >
+              Go to Dashboard
+            </button>
+            <button className="flex items-center space-x-2 bg-teal-500 hover:bg-teal-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
+              <Plus className="w-5 h-5" />
+              <span>Create New Report</span>
+            </button>
+          </div>
         </div>
 
         {/* Reports Grid */}

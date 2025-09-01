@@ -89,4 +89,3 @@ const Navbar = ({ activePage, setActivePage, handleNavigateToCleaning }) => {
 };
 
 export default Navbar;
-

@@ -217,10 +217,12 @@ const AnalysisPage = ({ cleanedData, c_id }) => {
               </div>
 
               {/* Message Content */}
-              <div className={`flex-1 max-w-3xl ${
+              <div className={`flex-1  ${
                 message.type === 'user' ? 'text-right' : ''
               }`}>
-                <div className={`inline-block p-4 rounded-lg ${
+                <div className={`p-4 rounded-lg ${
+  message.visualization ? 'block w-full' : 'inline-block'
+} ${
                   message.type === 'ai'
                     ? 'bg-gray-800 border border-gray-700 text-gray-200'
                     : 'bg-teal-500 text-.white'
@@ -230,34 +232,30 @@ const AnalysisPage = ({ cleanedData, c_id }) => {
                   {/* Display visualization if present */}
                   {message.visualization && (
                     <div className="mt-4">
-                      <Plot
-                          data={message.visualization.data}
-                          layout={{
-                            ...message.visualization.layout,
-                            autosize: true,
-                            margin: { l: 50, r: 50, t: 50, b: 50 }
-                          }}
-                          useResizeHandler={true}
-                          style={{ width: "100%", height: "500px" }}
-                          config={{
-                                  displaylogo: false, // remove Plotly logo
-                                  modeBarButtonsToRemove: [
-                                    "zoom2d",
-                                    "pan2d",
-                                    "select2d",
-                                    "lasso2d",
-                                    "zoomIn2d",
-                                    "zoomOut2d",
-                                    "autoScale2d",
-                                    
-                                    "hoverClosestCartesian",
-                                    "hoverCompareCartesian",
-                                    "toggleSpikelines",
-                                    "resetViews",
-                                  ],
-                                  modeBarButtonsToKeep: ["toImage", "resetScale2d"], // keep only download + home
-                                }}
-                        />
+                     <Plot
+  data={message.visualization.data}
+  layout={{
+    ...message.visualization.layout,
+    autosize: true,      // let Plotly resize to container
+    height: 500,         // enforce height
+    width: undefined,    // let width stretch
+    margin: { l: 60, r: 30, t: 60, b: 60 }, // avoid tight squeeze
+  }}
+  useResizeHandler={true}  // <-- this is critical
+  style={{ width: "100%", height: "100%" }}
+  config={{
+    responsive: true,
+    displaylogo: false,
+    modeBarButtonsToRemove: [
+      "zoom2d", "pan2d", "select2d", "lasso2d", "zoomIn2d", "zoomOut2d",
+      "autoScale2d", "hoverClosestCartesian", "hoverCompareCartesian",
+      "toggleSpikelines", "resetViews",
+    ],
+    modeBarButtonsToKeep: ["toImage", "resetScale2d"],
+  }}
+/>
+
+
                     </div>
                   )}
                   

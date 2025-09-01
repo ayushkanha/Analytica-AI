@@ -14,4 +14,3 @@ const FeatureCard = ({ icon: Icon, title, description }) => {
 };
 
 export default FeatureCard;
-

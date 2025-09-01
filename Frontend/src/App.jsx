@@ -45,11 +45,11 @@ function App() {
           onBack={() => setActivePage('cleaning')} 
         />;
       case 'analysis':
-        return <AnalysisPage cleanedData={cleanedData} c_id={c_id} />;
+        return <AnalysisPage cleanedData={cleanedData} c_id={c_id} setActivePage={setActivePage} />;
       case 'reports':
         return <ReportPage setActivePage={setActivePage} />;
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard c_id={c_id} />;
       default:
         return <HomePage setActivePage={handleNavigateToCleaning} />;
     }

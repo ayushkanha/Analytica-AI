@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException
+
+from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Dict, Any
@@ -60,6 +61,10 @@ class TextRequest(BaseModel):
 
 class ChatName(BaseModel):
     name: str
+
+class GraphSaveRequest(BaseModel):
+    c_id: int
+    graph_json: Dict[str, Any]
 
 @app.post("/chat")
 async def create_chat(chat_name: ChatName):
@@ -308,3 +313,89 @@ async def generate_graph(request: TextRequest):
             
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+
+
+
+
+class GraphCreate(BaseModel):
+    c_id: str      
+    graph_json: Dict[str, Any] 
+
+
+
+class GraphResponse(BaseModel):
+    id: int
+    chat_id: str
+    created_at: str
+
+
+# --- API Endpoints ---
+
+
+@app.post("/graphs", status_code=status.HTTP_201_CREATED)
+def save_graph(graph_data: GraphCreate):
+    try:
+        print(f"Saving graph for chat ID: {graph_data.c_id}")
+        data_to_insert = {
+            "chat_id": graph_data.c_id,
+            "graph_data": graph_data.graph_json
+        }
+
+        # Execute the insert query
+        response = supabase.table("graphs").insert(data_to_insert).execute()
+
+        # Check if the insert was successful
+        if len(response.data) == 0:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to save graph data in the database."
+            )
+        
+        # The response.data is a list containing the newly created record
+        new_graph_record = response.data[0]
+        
+        print(f"Successfully saved graph with ID: {new_graph_record['id']}")
+
+        # Return a success response
+        return {
+            "id": new_graph_record['id'],
+            "chat_id": new_graph_record['chat_id'],
+            "created_at": new_graph_record['created_at']
+        }
+
+    except Exception as e:
+        # This will catch database errors (e.g., if the chat_id doesn't exist)
+        # and other unexpected issues.
+        print(f"An error occurred: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred: {str(e)}"
+        )
+    
+
+from typing import List
+
+
+class GraphRecord(BaseModel):
+    id: int
+    created_at: str
+    chat_id: str
+    graph_data: Dict[str, Any]
+
+
+@app.get("/graphs/{c_id}", response_model=List[GraphRecord])
+def get_saved_graphs(c_id: str):
+
+    try:
+        response = supabase.table("graphs").select("*").eq("chat_id", c_id).execute()
+        print(f"Found {len(response.data)} graphs for chat ID: {c_id}")
+        return response.data
+    
+    except Exception as e:
+        print(f"An error occurred while fetching graphs: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred: {str(e)}"
+        )

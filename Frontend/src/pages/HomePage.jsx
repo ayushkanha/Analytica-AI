@@ -2,7 +2,7 @@ import React from 'react';
 import { Database, BarChart3, FileText } from 'lucide-react';
 import FeatureCard from '../components/FeatureCard';
 
-const HomePage = ({ setActivePage }) => {
+const HomePage = ({setActivePage }) => {
   const features = [
     {
       icon: Database,
@@ -35,7 +35,7 @@ const HomePage = ({ setActivePage }) => {
             Clean, analyze, and report on your data with the power of artificial intelligence.
           </p>
           <button 
-            onClick={setActivePage}
+            onClick={() => setActivePage()}
             className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/25"
           >
             Get Started Now
@@ -79,7 +79,7 @@ const HomePage = ({ setActivePage }) => {
             Join thousands of data professionals who trust AI Visualizer for their analytics needs.
           </p>
           <button 
-            onClick={setActivePage}
+            onClick={() => setActivePage()}
             className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/25"
           >
             Start Your Journey

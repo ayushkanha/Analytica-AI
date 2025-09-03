@@ -7,12 +7,16 @@ import ResultsPage from './pages/ResultsPage';
 import AnalysisPage from './pages/AnalysisPage';
 import ReportPage from './pages/ReportPage';
 import Dashboard from './pages/Dashboard';
+import { useUser } from "@clerk/clerk-react"; // or @clerk/nextjs
+
+
 
 function App() {
+  
   const [activePage, setActivePage] = useState('home');
   const [cleanedData, setCleanedData] = useState(null);
   const [c_id, setC_id] = useState(null);
-
+  const { user } = useUser();
   const handleNavigateToCleaning = async () => {
     try {
       const response = await fetch('http://localhost:8000/chat', {

@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Bot, User, Database, Plus, Menu, X, MoreVertical, Save, LayoutDashboard } from 'lucide-react';
 import Plot from 'react-plotly.js';
+import { useUser } from "@clerk/clerk-react"; // or @clerk/nextjs
+
+
 
 const AnalysisPage = ({ cleanedData, c_id, setActivePage }) => {
+  const { user } = useUser();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
@@ -111,7 +115,8 @@ const AnalysisPage = ({ cleanedData, c_id, setActivePage }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           c_id: c_id,
-          graph_json: graphData
+          graph_json: graphData,
+          user_id: user ? user.id : null
         })
       });
 

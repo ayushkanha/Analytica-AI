@@ -50,6 +50,8 @@ def visualize(df,query):
     - Always import `plotly.express as px` at the top.
     - Create a Plotly Express figure and assign it to a variable named `fig`.
     - Apply a **dark theme** using `fig.update_layout(template="plotly_dark")`.
+    - Apply a **transparent background** using:
+        fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
     - Use a **vivid color sequence** such as `color_discrete_sequence=px.colors.qualitative.Vivid` when applicable.
     - Do not call `fig.show()` or any display-related functions.
     - Do not include explanations, comments, or natural language in the output. Only output valid Python code.
@@ -80,6 +82,7 @@ def visualize(df,query):
     Only output valid Python code that follows the above rules.
     """
 )
+
 
 
 

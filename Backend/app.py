@@ -14,6 +14,7 @@ import os
 from dotenv import load_dotenv
 import tempfile
 from cleaning import agent_cleaning
+import plotly.graph_objects as go
 load_dotenv()
 
 # Supabase setup
@@ -61,6 +62,7 @@ class TextRequest(BaseModel):
 
 class ChatName(BaseModel):
     name: str
+    user_id: str | None = None
 
 class GraphSaveRequest(BaseModel):
     c_id: int
@@ -69,7 +71,10 @@ class GraphSaveRequest(BaseModel):
 @app.post("/chat")
 async def create_chat(chat_name: ChatName):
     try:
-        response = supabase.table('Chat').insert({"name": chat_name.name}).execute()
+        insert_data = {"name": chat_name.name}
+        if chat_name.user_id:
+            insert_data["userid"] = chat_name.user_id
+        response = supabase.table('Chat').insert(insert_data).execute()
         if response.data:
             return {"c_id": response.data[0]['c_id']}
         else:
@@ -322,13 +327,14 @@ async def generate_graph(request: TextRequest):
 class GraphCreate(BaseModel):
     c_id: str      
     graph_json: Dict[str, Any] 
-
+    user_id: str | None = None
 
 
 class GraphResponse(BaseModel):
     id: int
     chat_id: str
     created_at: str
+    user_id: str | None = None
 
 
 # --- API Endpoints ---
@@ -338,9 +344,29 @@ class GraphResponse(BaseModel):
 def save_graph(graph_data: GraphCreate):
     try:
         print(f"Saving graph for chat ID: {graph_data.c_id}")
+        fig_dict = graph_data.graph_json
+
+# default
+        graph_title = None  
+
+        if "layout" in fig_dict and "title" in fig_dict["layout"]:
+            title_obj = fig_dict["layout"]["title"]
+            if isinstance(title_obj, dict) and "text" in title_obj:
+                graph_title = title_obj["text"]
+            elif isinstance(title_obj, str):  # sometimes title is just a string
+                graph_title = title_obj
+            
+            # remove title from layout
+            fig_dict["layout"]["title"] = None  
+
+        # rebuild fig without title
+        fig = go.Figure(fig_dict)
+        
         data_to_insert = {
             "chat_id": graph_data.c_id,
-            "graph_data": graph_data.graph_json
+            "graph_data": json.loads(fig.to_json()),
+            "userid": graph_data.user_id,
+            "name": graph_title
         }
 
         # Execute the insert query
@@ -383,16 +409,17 @@ class GraphRecord(BaseModel):
     created_at: str
     chat_id: str
     graph_data: Dict[str, Any]
+    name: str | None = None
 
 
-@app.get("/graphs/{c_id}", response_model=List[GraphRecord])
-def get_saved_graphs(c_id: str):
-
+@app.get("/graphs/{user_id}", response_model=List[GraphRecord])
+def get_saved_graphs(user_id: str):
     try:
-        response = supabase.table("graphs").select("*").eq("chat_id", c_id).execute()
-        print(f"Found {len(response.data)} graphs for chat ID: {c_id}")
+        response = supabase.table("graphs").select("*").eq("userid", user_id).execute()
+        print(f"Found {len(response.data)} graphs for user ID: {user_id}")
+        print(response.data)
         return response.data
-    
+
     except Exception as e:
         print(f"An error occurred while fetching graphs: {e}")
         raise HTTPException(

@@ -145,7 +145,7 @@ className="resize-drag bg-white/20 backdrop-blur-lg flex flex-col absolute round
 
 
 // --- Main Dashboard Component ---
-const Dashboard = () => {
+const Dashboard = ({ c_id, setActivePage }) => {
     const { user } = useUser();
     const userId = user?.id;
 
@@ -352,13 +352,19 @@ const Dashboard = () => {
     return (
         <div className="flex h-screen bg-gray-900 text-white font-sans overflow-hidden">
             {/* Sidebar */}
+            
             <aside
                 className={`bg-gray-800 p-4 shrink-0 overflow-y-auto flex flex-col transition-all duration-300 ${
                     sidebarCollapsed ? 'w-16' : 'w-64'
                 }`}
                 style={{ minWidth: sidebarCollapsed ? '4rem' : '16rem' }}
             >
+                <div className="flex items-center gap-3" onClick={() => setActivePage('home')} style={{ cursor: 'pointer' }}>
+                        <img src="/logo.png" alt="Analytica Logo" className="h-8 w-8" />
+                        <span className="text-2xl font-bold text-white hidden sm:inline">Analytica</span>
+                    </div>
                 <div className="flex items-center justify-between mb-6">
+                    
                     <h2 className={`text-xl font-bold text-gray-300 transition-opacity duration-300 ${sidebarCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
                         Chart Library
                     </h2>

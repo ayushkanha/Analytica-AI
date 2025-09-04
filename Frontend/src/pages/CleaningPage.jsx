@@ -242,7 +242,7 @@ const CleaningPage = ({ setActivePage, setCleanedData, c_id }) => {
 
   return (
     <div className="min-h-screen bg-gray-900 px-6 py-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto mt-20">
         {/* Header Section */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-200 mb-2">Data Cleaning</h1>

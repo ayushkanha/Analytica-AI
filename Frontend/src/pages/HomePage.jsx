@@ -1,7 +1,7 @@
 import React from 'react';
 import { Database, BarChart3, FileText } from 'lucide-react';
 import FeatureCard from '../components/FeatureCard';
-
+import { useUser,SignIn } from "@clerk/clerk-react"; // or @clerk/nextjs
 const HomePage = ({setActivePage }) => {
   const features = [
     {
@@ -22,9 +22,9 @@ const HomePage = ({setActivePage }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-gray-900 pt-50">
       {/* Hero Section */}
-      <section className="px-6 py-20">
+      <section className="px-6 py-20 pb-40">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-5xl md:text-6xl font-bold text-gray-200 mb-6 leading-tight">
             Turn Your Data Into{' '}

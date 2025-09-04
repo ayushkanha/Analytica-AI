@@ -1,6 +1,6 @@
-html, body {
-
-  /* disables outer scrollbar */
+/* You can add this inside your existing index.css file */
+body {
+  font-family: 'Inter', sans-serif;
 }
 /* global.css */
 ::-webkit-scrollbar {

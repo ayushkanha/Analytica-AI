@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
@@ -7,7 +7,8 @@ import ResultsPage from './pages/ResultsPage';
 import AnalysisPage from './pages/AnalysisPage';
 import ReportPage from './pages/ReportPage';
 import Dashboard from './pages/Dashboard';
-import { useUser } from "@clerk/clerk-react"; // or @clerk/nextjs
+
+import { useUser, SignIn } from "@clerk/clerk-react"; // or @clerk/nextjs
 
 
 
@@ -53,7 +54,7 @@ function App() {
       case 'reports':
         return <ReportPage setActivePage={setActivePage} />;
       case 'dashboard':
-        return <Dashboard c_id={c_id} />;
+        return <Dashboard c_id={c_id} setActivePage={setActivePage} />;
       default:
         return <HomePage setActivePage={handleNavigateToCleaning} />;
     }
@@ -61,7 +62,7 @@ function App() {
 
   return (
     <div className="App dark">
-      <Navbar activePage={activePage} setActivePage={setActivePage} handleNavigateToCleaning={handleNavigateToCleaning} />
+      {activePage !== 'analysis' && activePage !== 'dashboard' && <Navbar activePage={activePage} setActivePage={setActivePage} handleNavigateToCleaning={handleNavigateToCleaning} />}
       {renderPage()}
     </div>
   );

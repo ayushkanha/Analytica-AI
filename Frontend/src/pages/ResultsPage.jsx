@@ -39,7 +39,7 @@ const ResultsPage = ({ cleanedData, setActivePage, onBack }) => {
 
   return (
     <div className="min-h-screen bg-gray-900 px-6 py-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto mt-20">
         {/* Header */}
         <div className="mb-8">
           <button

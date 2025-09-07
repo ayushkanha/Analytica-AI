@@ -2,6 +2,8 @@ import React from 'react';
 import { Database, BarChart3, FileText } from 'lucide-react';
 import FeatureCard from '../components/FeatureCard';
 import { useUser,SignIn } from "@clerk/clerk-react"; // or @clerk/nextjs
+import './HomePageBackground.css';
+
 const HomePage = ({setActivePage }) => {
   const features = [
     {
@@ -22,34 +24,38 @@ const HomePage = ({setActivePage }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-900 pt-50">
+    <div className="antialiased">
       {/* Hero Section */}
-      <section className="px-6 py-20 pb-40">
-        <div className="max-w-4xl mx-auto text-center">
+      <main className="gradient-container flex items-center justify-center p-4">
+        <div className="content-wrapper text-center text-white">
           <h1 className="text-5xl md:text-6xl font-bold text-gray-200 mb-6 leading-tight">
             Turn Your Data Into{' '}
             <span className="text-teal-400">Dialogue</span>.
           </h1>
+          <div className="inline-flex items-center px-6 py-3 glass-badge rounded-full mb-8 animate-fade-in">
+          <span className="text-sm font-medium text-white/90 tracking-wide">✨ Welcome to Analytica.ai</span>
+        </div>
           <p className="text-xl text-gray-400 mb-8 leading-relaxed max-w-2xl mx-auto">
             Transform raw data into meaningful conversations with our AI-powered visualization platform. 
             Clean, analyze, and report on your data with the power of artificial intelligence.
           </p>
           <button 
             onClick={() => setActivePage()}
-            className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/25"
+            className="inline-flex items-center glass-badge text-white px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300 animate-fade-in purple-gradient-btn"
           >
             Get Started Now
           </button>
         </div>
-      </section>
+      </main>
 
       {/* Features Section */}
-      <section className="px-6 py-20 bg-gray-800/50">
+      <section className="bg-gray-800/50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-200 mb-4">
               Powerful Features for Data Excellence
             </h2>
+            
             <p className="text-xl text-gray-400 max-w-2xl mx-auto">
               Everything you need to transform your data into actionable insights, 
               powered by cutting-edge AI technology.

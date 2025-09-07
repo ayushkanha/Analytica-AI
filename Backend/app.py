@@ -59,6 +59,7 @@ class TextRequest(BaseModel):
     query: str
     df: List[Dict[str, Any]]
     c_id: str
+    user_id: str | None = None
 
 class ChatName(BaseModel):
     name: str
@@ -284,6 +285,7 @@ async def generate_graph(request: TextRequest):
         df = pd.DataFrame(request.df)
         query = request.query
         c_id = request.c_id
+        user_id = request.user_id
         
         # Check if the query is for a graph
         is_graph = querycheck.pool(query)
@@ -308,11 +310,14 @@ async def generate_graph(request: TextRequest):
             response_data = {"type": "text", "data": text_answer}
 
         # Save message to Supabase
-        supabase.table('messages').insert({
+        insert_data = {
             "user_message": query,
             "response": response_data,
             "c_id": c_id
-        }).execute()
+        }
+        if user_id:
+            insert_data["user_id"] = user_id
+        supabase.table('messages').insert(insert_data).execute()
 
         return response_data
             

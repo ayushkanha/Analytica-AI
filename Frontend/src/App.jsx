@@ -10,20 +10,19 @@ import Dashboard from './pages/Dashboard';
 
 import { useUser, SignIn } from "@clerk/clerk-react"; // or @clerk/nextjs
 
-
-
 function App() {
   
   const [activePage, setActivePage] = useState('home');
   const [cleanedData, setCleanedData] = useState(null);
   const [c_id, setC_id] = useState(null);
+  const [fileName, setFileName] = useState(null);
   const { user } = useUser();
   const handleNavigateToCleaning = async () => {
     try {
       const response = await fetch('http://localhost:8000/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'New Analysis' }),
+        body: JSON.stringify({ name: 'New Analysis', user_id: user.id }),
       });
       if (response.ok) {
         const newChat = await response.json();
@@ -42,7 +41,7 @@ function App() {
       case 'home':
         return <HomePage setActivePage={handleNavigateToCleaning} />;
       case 'cleaning':
-        return <CleaningPage setActivePage={setActivePage} setCleanedData={setCleanedData} c_id={c_id} />;
+        return <CleaningPage setActivePage={setActivePage} setCleanedData={setCleanedData} c_id={c_id} setFileName={setFileName} user_id={user.id}/>;
       case 'results':
         return <ResultsPage 
           cleanedData={cleanedData} 
@@ -50,7 +49,7 @@ function App() {
           onBack={() => setActivePage('cleaning')} 
         />;
       case 'analysis':
-        return <AnalysisPage cleanedData={cleanedData} c_id={c_id} setActivePage={setActivePage} />;
+        return <AnalysisPage cleanedData={cleanedData} c_id={c_id} setC_id={setC_id} setActivePage={setActivePage} fileName={fileName} />;
       case 'reports':
         return <ReportPage setActivePage={setActivePage} />;
       case 'dashboard':

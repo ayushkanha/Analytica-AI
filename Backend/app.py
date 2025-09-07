@@ -1,4 +1,5 @@
-
+import os
+from supabase import create_client, Client
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -9,12 +10,11 @@ import graphgen
 import texanswer
 import pandas as pd
 import json
-from supabase import create_client, Client
-import os
-from dotenv import load_dotenv
 import tempfile
 from cleaning import agent_cleaning
 import plotly.graph_objects as go
+from dotenv import load_dotenv
+
 load_dotenv()
 
 # Supabase setup
@@ -60,13 +60,14 @@ class TextRequest(BaseModel):
     df: List[Dict[str, Any]]
     c_id: str
     user_id: str | None = None
+    filename: str | None = None
 
 class ChatName(BaseModel):
     name: str
-    user_id: str | None = None
+    user_id: str 
 
 class GraphSaveRequest(BaseModel):
-    c_id: int
+    c_id: str
     graph_json: Dict[str, Any]
 
 @app.post("/chat")
@@ -84,16 +85,19 @@ async def create_chat(chat_name: ChatName):
         print(e)
         raise HTTPException(status_code=500, detail=f"Error creating chat: {e}")
 
-@app.get("/chats")
-async def get_chats():
+@app.get("/chats/{user_id}")
+async def get_user_chats(user_id: str):
+    """
+    Fetches all chats associated with a specific user ID.
+    """
     try:
-        response = supabase.table('Chat').select("*").execute()
+        response = supabase.table('Chat').select("*").eq('userid', user_id).order('created_at').execute()
         return response.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/chat/{c_id}/messages")
-async def get_chat_messages(c_id: int):
+async def get_chat_messages(c_id: str):
     try:
         response = supabase.table('messages').select("*").eq('c_id', c_id).order('created_at').execute()
         return response.data
@@ -105,31 +109,25 @@ async def process_data(content: ProcessRequest):
     print("Received data:", len(content.data), "rows")
     print("Received dictionary:", content.dictionary)
     
-
-    cleaned_data = content.data.copy()  
+    cleaned_data = content.data.copy()
     
     try:
         if content.dictionary.get('aiMagic', 0) == 1:
             print("AI Magic mode activated - applying intelligent data cleaning")
-    
-            import pandas as pd
+            
             df = pd.DataFrame(content.data)
             
-            # Create temporary file
             temp_fd, temp_path = tempfile.mkstemp(suffix=".csv")
             os.close(temp_fd)
             
             try:
-                # Save data to temporary CSV
                 df.to_csv(temp_path, index=False)
                 
-                # Use agent_cleaning function
-                cleaned_df = agent_cleaning(temp_path)
+                ai_instruction = content.dictionary.get('aiInstruction', '')
+                cleaned_df = cleaning.agent_cleaning(temp_path, instruction=ai_instruction)
                 
-                # Convert back to list of dictionaries
                 cleaned_data = cleaned_df.to_dict('records')
                 
-                # Clean up temporary file
                 os.unlink(temp_path)
                 
                 return {
@@ -142,10 +140,8 @@ async def process_data(content: ProcessRequest):
                 }
             except Exception as e:
                 print(f"AI Magic error: {e}")
-                # Clean up temporary file on error
                 if os.path.exists(temp_path):
                     os.unlink(temp_path)
-                # Fall back to basic AI magic
                 cleaned_data = apply_ai_magic(content.data)
                 return {
                     "status": "success", 
@@ -156,13 +152,10 @@ async def process_data(content: ProcessRequest):
                     "ai_magic_applied": True
                 }
         
-        # Remove duplicates if selected
         if content.dictionary.get('removeDuplicates', 0) == 1:
-            # Convert each row to a tuple for hashing, then back to dict
             seen = set()
             unique_data = []
             for row in cleaned_data:
-                # Create a hashable representation of the row
                 row_tuple = tuple(sorted(row.items()))
                 if row_tuple not in seen:
                     seen.add(row_tuple)
@@ -170,31 +163,26 @@ async def process_data(content: ProcessRequest):
             cleaned_data = unique_data
             print(f"Removed {len(content.data) - len(cleaned_data)} duplicate rows")
         
-        # Handle missing values if selected
         if content.dictionary.get('handleMissing', 0) == 1:
-            missing_strategy = content.dictionary.get('missingStrategy', 'fill')  # 'fill' or 'remove'
+            missing_strategy = content.dictionary.get('missingStrategy', 'fill')
             if missing_strategy == 'remove':
-                # Remove rows with missing values
                 cleaned_data = [row for row in cleaned_data if not has_missing_values(row)]
                 print(f"Removed rows with missing values. Remaining: {len(cleaned_data)} rows")
             else:
-                # Fill missing values
                 for row in cleaned_data:
                     for key, value in row.items():
                         if value is None or value == '' or (isinstance(value, str) and value.strip() == ''):
-                            row[key] = '0' 
+                            row[key] = '0'
                 print("Filled missing values with '0'")
 
         if content.dictionary.get('standardizeFormats', 0) == 1:
             for row in cleaned_data:
                 for key, value in row.items():
                     if isinstance(value, str):
-                        # Basic text standardization
                         row[key] = value.strip().title()
             print("Standardized text formats")
 
         if content.dictionary.get('removeOutliers', 0) == 1:
-
             print("Outlier removal selected (basic implementation)")
         
         return {
@@ -214,31 +202,24 @@ def has_missing_values(row):
         if value is None or value == '' or (isinstance(value, str) and value.strip() == ''):
             return True
     return False
+
 def apply_ai_magic(data):
-    print(data)
     """Apply intelligent AI-powered data cleaning"""
     print("Applying AI Magic...")
-    
     if not data:
         return data
     
-    # Get sample data to understand structure
     sample_row = data[0]
     columns = list(sample_row.keys())
-    
     cleaned_data = []
     
     for row in data:
-        # Create a copy of the row
         cleaned_row = row.copy()
         
-        # AI Magic: Intelligent missing value handling
         for col in columns:
             value = cleaned_row[col]
             
-            # Check if value is missing
             if value is None or value == '' or (isinstance(value, str) and value.strip() == ''):
-                # AI decision: Fill based on column context
                 if 'name' in col.lower() or 'title' in col.lower():
                     cleaned_row[col] = 'Unknown'
                 elif 'date' in col.lower():
@@ -250,17 +231,14 @@ def apply_ai_magic(data):
                 else:
                     cleaned_row[col] = 'N/A'
         
-        # AI Magic: Basic text standardization
         for col in columns:
             if isinstance(cleaned_row[col], str):
                 cleaned_row[col] = cleaned_row[col].strip()
-                # Don't title case names, but standardize other text
                 if 'name' not in col.lower() and 'title' not in col.lower():
                     cleaned_row[col] = cleaned_row[col].title()
         
         cleaned_data.append(cleaned_row)
     
-    # AI Magic: Remove obvious duplicates
     seen = set()
     unique_data = []
     for row in cleaned_data:
@@ -271,6 +249,7 @@ def apply_ai_magic(data):
     
     print(f"AI Magic: Removed {len(cleaned_data) - len(unique_data)} duplicate rows")
     return unique_data
+
 @app.post("/query")
 async def check_query(request: QueryRequest):
     try:
@@ -286,16 +265,19 @@ async def generate_graph(request: TextRequest):
         query = request.query
         c_id = request.c_id
         user_id = request.user_id
+
+        # Check if it's the first message for this chat
+        messages_response = supabase.table('messages').select('id').eq('c_id', c_id).limit(1).execute()
+        if not messages_response.data:
+            if request.filename:
+                supabase.table('Chat').update({'name': request.filename}).eq('c_id', c_id).execute()
         
-        # Check if the query is for a graph
         is_graph = querycheck.pool(query)
         
         response_data = None
         if is_graph == "yes":
-            # Generate graph
             graph_code = graphgen.visualize(df, query)
             
-            # Execute the generated code
             exec_globals = {'pd': pd, 'df': df, 'go': None, 'px': None, 'fig': None}
             exec(graph_code, exec_globals)
             fig = exec_globals.get('fig')
@@ -305,11 +287,9 @@ async def generate_graph(request: TextRequest):
             else:
                 response_data = {"type": "text", "data": "Could not generate graph."}
         else:
-            # Generate text answer
             text_answer = texanswer.analyze(df,query)
             response_data = {"type": "text", "data": text_answer}
 
-        # Save message to Supabase
         insert_data = {
             "user_message": query,
             "response": response_data,
@@ -324,26 +304,17 @@ async def generate_graph(request: TextRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-
-
-
-
-
 class GraphCreate(BaseModel):
     c_id: str      
     graph_json: Dict[str, Any] 
     user_id: str | None = None
 
-
-class GraphResponse(BaseModel):
+class GraphRecord(BaseModel):
     id: int
-    chat_id: str
     created_at: str
-    user_id: str | None = None
-
-
-# --- API Endpoints ---
-
+    chat_id: str
+    graph_data: Dict[str, Any]
+    name: str | None = None
 
 @app.post("/graphs", status_code=status.HTTP_201_CREATED)
 def save_graph(graph_data: GraphCreate):
@@ -351,20 +322,16 @@ def save_graph(graph_data: GraphCreate):
         print(f"Saving graph for chat ID: {graph_data.c_id}")
         fig_dict = graph_data.graph_json
 
-# default
         graph_title = None  
-
         if "layout" in fig_dict and "title" in fig_dict["layout"]:
             title_obj = fig_dict["layout"]["title"]
             if isinstance(title_obj, dict) and "text" in title_obj:
                 graph_title = title_obj["text"]
-            elif isinstance(title_obj, str):  # sometimes title is just a string
+            elif isinstance(title_obj, str):
                 graph_title = title_obj
             
-            # remove title from layout
-            fig_dict["layout"]["title"] = None  
+            fig_dict["layout"]["title"] = None
 
-        # rebuild fig without title
         fig = go.Figure(fig_dict)
         
         data_to_insert = {
@@ -374,22 +341,18 @@ def save_graph(graph_data: GraphCreate):
             "name": graph_title
         }
 
-        # Execute the insert query
         response = supabase.table("graphs").insert(data_to_insert).execute()
 
-        # Check if the insert was successful
         if len(response.data) == 0:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Failed to save graph data in the database."
             )
         
-        # The response.data is a list containing the newly created record
         new_graph_record = response.data[0]
         
         print(f"Successfully saved graph with ID: {new_graph_record['id']}")
 
-        # Return a success response
         return {
             "id": new_graph_record['id'],
             "chat_id": new_graph_record['chat_id'],
@@ -397,26 +360,12 @@ def save_graph(graph_data: GraphCreate):
         }
 
     except Exception as e:
-        # This will catch database errors (e.g., if the chat_id doesn't exist)
-        # and other unexpected issues.
         print(f"An error occurred: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An unexpected error occurred: {str(e)}"
         )
     
-
-from typing import List
-
-
-class GraphRecord(BaseModel):
-    id: int
-    created_at: str
-    chat_id: str
-    graph_data: Dict[str, Any]
-    name: str | None = None
-
-
 @app.get("/graphs/{user_id}", response_model=List[GraphRecord])
 def get_saved_graphs(user_id: str):
     try:

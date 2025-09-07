@@ -3,7 +3,7 @@ import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { Upload, FileSpreadsheet, Check, Loader2, FileText, FileSpreadsheet as ExcelIcon } from 'lucide-react';
 
-const CleaningPage = ({ setActivePage, setCleanedData, c_id }) => {
+const CleaningPage = ({ setActivePage, setCleanedData, c_id, setFileName, user_id }) => {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [parsedData, setParsedData] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -16,6 +16,7 @@ const CleaningPage = ({ setActivePage, setCleanedData, c_id }) => {
     standardizeFormats: false,
     removeOutliers: false
   });
+  const [aiInstruction, setAiInstruction] = useState('');
 
   // Robust CSV parser using papaparse
   const parseCSV = (text) => {
@@ -113,7 +114,8 @@ const CleaningPage = ({ setActivePage, setCleanedData, c_id }) => {
       handleMissing: selectedOptions.handleMissing ? 1 : 0,
       missingStrategy: selectedOptions.missingStrategy,
       standardizeFormats: selectedOptions.standardizeFormats ? 1 : 0,
-      removeOutliers: selectedOptions.removeOutliers ? 1 : 0
+      removeOutliers: selectedOptions.removeOutliers ? 1 : 0,
+      aiInstruction: selectedOptions.aiMagic ? aiInstruction : ''
     };
   };
 
@@ -134,6 +136,7 @@ const CleaningPage = ({ setActivePage, setCleanedData, c_id }) => {
       data: parsedData.rows,
       dictionary: buildDictionary(),
       c_id: c_id,
+      user_id: user_id,
     };
     console.log('Process button clicked. Sending payload:', payload);
     
@@ -196,6 +199,9 @@ const CleaningPage = ({ setActivePage, setCleanedData, c_id }) => {
   // Handle file upload (used by both drag & drop and file input)
   const handleFileUpload = async (file) => {
     setUploadedFile(file);
+    if (setFileName) {
+      setFileName(file.name);
+    }
     
     try {
       // Use the universal parser
@@ -498,6 +504,19 @@ const CleaningPage = ({ setActivePage, setCleanedData, c_id }) => {
                   <p className="text-teal-200 text-sm">
                     AI will intelligently clean your data by analyzing column types and applying the best cleaning strategies automatically.
                   </p>
+                  <div className="mt-4">
+                    <label htmlFor="ai-instruction" className="text-gray-300 font-medium">
+                      Instructions for AI (Optional)
+                    </label>
+                    <textarea
+                      id="ai-instruction"
+                      value={aiInstruction}
+                      onChange={(e) => setAiInstruction(e.target.value)}
+                      className="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 mt-2 text-gray-200 focus:ring-teal-500 focus:border-teal-500"
+                      placeholder="e.g., 'remove rows where column X is empty', 'convert column Y to uppercase'"
+                      rows="3"
+                    ></textarea>
+                  </div>
                 </div>
               )}
             </div>

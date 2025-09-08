@@ -98,16 +98,15 @@ Follow these instructions to get a copy of the project up and running on your lo
 ## Screenshots
 
 ### Home Page
-
-\<img width="1920" height="918" alt="image" src="[https://github.com/user-attachments/assets/cbe5b1d3-6020-4553-96fc-b1158d746529](https://github.com/user-attachments/assets/cbe5b1d3-6020-4553-96fc-b1158d746529)" /\>
+<img width="1920" height="918" alt="image" src="https://github.com/user-attachments/assets/d2c972bb-aa72-4ace-bdff-9d550d50c231" />
 
 ### Data Cleaning Page
 
-\<img width="1165" height="907" alt="image" src="[https://github.com/user-attachments/assets/a267f60f-b9cf-4c73-9ccf-0520aab744cc](https://github.com/user-attachments/assets/a267f60f-b9cf-4c73-9ccf-0520aab744cc)" /\>
+<img width="1165" height="907" alt="image" src="https://github.com/user-attachments/assets/a267f60f-b9cf-4c73-9ccf-0520aab744cc"/>
 
 ### Analysis Page
 
-\<img width="894" height="899" alt="image" src="[https://github.com/user-attachments/assets/6467f940-2bd9-405b-99dd-935a6b85b004](https://github.com/user-attachments/assets/6467f940-2bd9-405b-99dd-935a6b85b004)" /\>
+<img width="894" height="899" alt="image" src="https://github.com/user-attachments/assets/6467f940-2bd9-405b-99dd-935a6b85b004" />
 
 -----
 

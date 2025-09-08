@@ -92,7 +92,8 @@ Follow these instructions to get a copy of the project up and running on your lo
 ## Screenshots
 
 ### Home Page
-![Uploading image.png…]()
+<img width="1920" height="918" alt="image" src="https://github.com/user-attachments/assets/cbe5b1d3-6020-4553-96fc-b1158d746529" />
+
 
 
 

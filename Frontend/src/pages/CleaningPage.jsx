@@ -269,10 +269,34 @@ const CleaningPage = ({ setActivePage, setCleanedData, c_id, setFileName, user_i
             onDrop={handleDrop}
           >
             <div className="mb-6">
-              <div className="bg-teal-500 p-4 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
-                <Upload className="w-10 h-10 text-white" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-200 mb-2 text-center">Upload Your Data</h2>
+              
+<div class="relative w-full group">
+  <div
+    class="relative z-40 cursor-pointer group-hover:translate-x-8 group-hover:shadow-2xl group-hover:-translate-y-8 transition-all duration-500 bg-neutral-900 flex items-center justify-center h-32 w-32 mx-auto rounded-xl"
+  >
+    <svg
+      class="h-6 w-6 text-white/60"
+      stroke-linejoin="round"
+      stroke-linecap="round"
+      stroke-width="2"
+      stroke="currentColor"
+      fill="none"
+      viewBox="0 0 24 24"
+      height="24"
+      width="24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+      <path d="M7 9l5 -5l5 5"></path>
+      <path d="M12 4l0 12"></path>
+    </svg>
+  </div>
+  <div
+    class="absolute border opacity-0 group-hover:opacity-80 transition-all duration-300 border-dashed border-sky-400 inset-0 z-30 bg-transparent flex items-center justify-center h-32 w-32 mx-auto rounded-xl"
+  ></div>
+</div>
+
+              <h2 className="text-2xl pt-6 font-bold text-gray-200 mb-2 text-center">Upload Your Data</h2>
               <p className="text-gray-400 mb-6 text-center">
                 {isDragOver 
                   ? 'Drop your file here!' 
@@ -542,10 +566,56 @@ const CleaningPage = ({ setActivePage, setCleanedData, c_id, setFileName, user_i
             {/* Loading Screen */}
             {isProcessing && (
               <div className="fixed inset-0 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center z-50">
-                <div className="bg-gray-800 rounded-lg p-8 border border-gray-700 max-w-md mx-4 text-center">
-                  <div className="bg-teal-500 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 text-white animate-spin" />
-                  </div>
+                <div className="bg-gray-800 rounded-lg p-8 border border-gray-700 max-w-md mx-4 text-center ">
+                  
+<div class="w-32 h-32 relative flex items-center justify-center mx-auto">
+  <div
+    class="absolute inset-0 rounded-xl bg-blue-500/20 blur-xl animate-pulse"
+  ></div>
+
+  <div class="w-full h-full relative flex items-center justify-center">
+    <div
+      class="absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 animate-spin blur-sm"
+    ></div>
+
+    <div
+      class="absolute inset-1 bg-gray-900 rounded-lg flex items-center justify-center overflow-hidden"
+    >
+      <div class="flex gap-1 items-center">
+        <div
+          class="w-1.5 h-12 bg-cyan-500 rounded-full animate-[bounce_1s_ease-in-out_infinite]"
+        ></div>
+        <div
+          class="w-1.5 h-12 bg-blue-500 rounded-full animate-[bounce_1s_ease-in-out_infinite_0.1s]"
+        ></div>
+        <div
+          class="w-1.5 h-12 bg-indigo-500 rounded-full animate-[bounce_1s_ease-in-out_infinite_0.2s]"
+        ></div>
+        <div
+          class="w-1.5 h-12 bg-purple-500 rounded-full animate-[bounce_1s_ease-in-out_infinite_0.3s]"
+        ></div>
+      </div>
+
+      <div
+        class="absolute inset-0 bg-gradient-to-t from-transparent via-blue-500/10 to-transparent animate-pulse"
+      ></div>
+    </div>
+  </div>
+
+  <div
+    class="absolute -top-1 -left-1 w-2 h-2 bg-blue-500 rounded-full animate-ping"
+  ></div>
+  <div
+    class="absolute -top-1 -right-1 w-2 h-2 bg-purple-500 rounded-full animate-ping delay-100"
+  ></div>
+  <div
+    class="absolute -bottom-1 -left-1 w-2 h-2 bg-cyan-500 rounded-full animate-ping delay-200"
+  ></div>
+  <div
+    class="absolute -bottom-1 -right-1 w-2 h-2 bg-blue-500 rounded-full animate-ping delay-300"
+  ></div>
+</div>
+
                   <h3 className="text-xl font-semibold text-gray-200 mb-2">Processing Your Data</h3>
                   <p className="text-gray-400 mb-4">
                     Our AI is cleaning and processing your data. This may take a few moments...

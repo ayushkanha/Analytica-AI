@@ -2,8 +2,10 @@ import React from 'react';
 import { Database, BarChart3, FileText } from 'lucide-react';
 import FeatureCard from '../components/FeatureCard';
 import { useUser,SignIn } from "@clerk/clerk-react"; // or @clerk/nextjs
-import './HomePageBackground.css';
-import { ParticleNetwork } from '../components/ParticleNetwork';
+import bg1 from '../assets/bg1.png';
+import { ParticleNetwork } from '@/components/ParticleNetwork';
+import SparkleButton from '../components/SparkleButton';
+
 const HomePage = ({setActivePage }) => {
   const features = [
     {
@@ -26,9 +28,9 @@ const HomePage = ({setActivePage }) => {
   return (
     <div className="antialiased">
       {/* Hero Section */}
-      <ParticleNetwork className="opacity-60" />
-      <main className="gradient-container flex items-center justify-center p-4">
-        <div className="content-wrapper text-center text-white">
+  
+      <main className="flex items-center justify-center p-4" style={{ backgroundImage: `url(${bg1})`, backgroundSize: 'cover', backgroundPosition: 'center', minHeight: '100vh' }}>
+        <div className="content-wrapper text-center text-white pt-20">
           <h1 className="text-5xl md:text-6xl font-bold text-gray-200 mb-6 leading-tight">
             Turn Your Data Into{' '}
             <span className="text-teal-400">Dialogue</span>.
@@ -40,18 +42,18 @@ const HomePage = ({setActivePage }) => {
             Transform raw data into meaningful conversations with our AI-powered visualization platform. 
             Clean, analyze, and report on your data with the power of artificial intelligence.
           </p>
-          <button 
-            onClick={() => setActivePage()}
-            className="inline-flex items-center glass-badge text-white px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300 animate-fade-in purple-gradient-btn"
-          >
-            Get Started Now
-          </button>
+          <div className="flex gap-4 justify-center mb-10">
+          <SparkleButton
+        text="Get Started Now"
+        onClick={setActivePage}
+      />
+      </div>
         </div>
         
       </main>
 
       {/* Features Section */}
-      <section className="bg-gray-800/50">
+      <section className="bg-black">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-200 mb-4">
@@ -78,7 +80,7 @@ const HomePage = ({setActivePage }) => {
       </section>
 
       {/* CTA Section */}
-      <section className="px-6 py-20">
+      <section className="px-6 py-20 bg-black">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-gray-200 mb-4">
             Ready to Transform Your Data?
@@ -88,8 +90,8 @@ const HomePage = ({setActivePage }) => {
           </p>
           <button 
             onClick={() => setActivePage()}
-            className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/25"
-          >
+            class="group relative bg-slate-900 h-16 w-64 border-2 border-teal-600 text-white text-base font-bold rounded-xl overflow-hidden transform transition-all duration-500 hover:scale-105 hover:border-emerald-400 hover:text-emerald-300 p-3 text-left before:absolute before:w-10 before:h-10 before:content[''] before:right-2 before:top-2 before:z-10 before:bg-indigo-500 before:rounded-full before:blur-lg before:transition-all before:duration-500 after:absolute after:z-10 after:w-16 after:h-16 after:content[''] after:bg-teal-400 after:right-6 after:top-4 after:rounded-full after:blur-lg after:transition-all after:duration-500 hover:before:right-10 hover:before:-bottom-4 hover:before:blur hover:after:-right-6 hover:after:scale-110">
+           
             Start Your Journey
           </button>
         </div>

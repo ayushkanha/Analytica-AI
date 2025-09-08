@@ -4,26 +4,12 @@ body {
 }
 /* global.css */
 ::-webkit-scrollbar {
-  width: 6px;  /* thin scrollbar */
-}
-
-::-webkit-scrollbar-track {
-  background: #111827; /* matches bg-gray-900 */
-}
-
-::-webkit-scrollbar-thumb {
-  background: #1f2937; /* matches bg-gray-800 */
-  border-radius: 8px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #374151; /* slightly visible on hover */
+  display: none;
 }
 
 /* For Firefox */
 * {
-  scrollbar-width: thin;
-  scrollbar-color: #1f2937 #111827;
+  scrollbar-width: none;
 }
 @layer components {
   .gradient-primary {
@@ -77,4 +63,16 @@ body {
       0 12px 40px rgba(0, 0, 0, 0.15),
       inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
+}
+
+.purple-gradient-btn {
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.592) 00%, #5239b1 30%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 15px 3px rgba(255, 255, 255, 0.277);
+  transition: all 0.3s ease-in-out;
+}
+
+.purple-gradient-btn:hover {
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.56) 0%, #5239b1 40%);
+  box-shadow: 0 0 18px 4px rgba(255, 255, 255, 0.499);
 }

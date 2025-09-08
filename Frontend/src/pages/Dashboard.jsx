@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Plot from 'react-plotly.js';
 
 // --- Mock Clerk's useUser hook. Replace this with your actual import ---
-import { useUser } from "@clerk/clerk-react";
+import { useUser, SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/clerk-react';
+import { Send, Bot, User, Database, Plus, Menu, X, MoreVertical, Save, LayoutDashboard } from 'lucide-react';
 
 // Import backgrounds
 import Grad1 from "/Backgrounds/Grad 1.jpg";
@@ -202,7 +203,7 @@ const Dashboard = ({ c_id, setActivePage }) => {
 
                 // 2. Fetch available graphs from API
                 try {
-                    const response = await fetch(`http://localhost:8000/graphs/${userId}`);
+                    const response = await fetch(`https://analytica-ai-backend-68kc.onrender.com/graphs/${userId}`);
                     if (response.ok) {
                         const data = await response.json();
                         const parsedData = data.map(graph => {
@@ -407,7 +408,7 @@ const Dashboard = ({ c_id, setActivePage }) => {
                     <h1 className="text-2xl font-bold text-gray-200">My Dashboard</h1>
                     <div className="flex items-center space-x-4">
                         {/* Background dropdown with label */}
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-2 pl-200">
                             <label htmlFor="dashboard-bg-select" className="text-gray-400 font-medium">Background:</label>
                             <select
                                 id="dashboard-bg-select"
@@ -428,6 +429,21 @@ const Dashboard = ({ c_id, setActivePage }) => {
                             Clear Dashboard
                         </button>
                     </div>
+                    <div>
+                                  <SignedOut>
+                                    <SignInButton>
+                                      <button className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors duration-200 border border-white/20 text-sm font-medium">
+                                        <User className="w-4 h-4" />
+                                        <span className="text-shadow-[0_0_10px_rgba(255,255,255,0.8)] hover:text-shadow-[0_0_15px_rgba(255,255,255,1)] transition-all duration-200">
+                                          Sign Up
+                                        </span>
+                                      </button>
+                                    </SignInButton>
+                                  </SignedOut>
+                                  <SignedIn>
+                                    <UserButton afterSignOutUrl="/" />
+                                  </SignedIn>
+                                </div>
                 </header>
                 {/* Dashboard Grid */}
                 <main className="flex-1 p-4 relative">

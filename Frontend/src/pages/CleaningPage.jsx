@@ -141,7 +141,7 @@ const CleaningPage = ({ setActivePage, setCleanedData, c_id, setFileName, user_i
     console.log('Process button clicked. Sending payload:', payload);
     
     try {
-      const response = await fetch('http://localhost:8000/process', {
+      const response = await fetch('https://analytica-ai-backend-68kc.onrender.com/process', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

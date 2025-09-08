@@ -19,7 +19,7 @@ function App() {
   const { user } = useUser();
   const handleNavigateToCleaning = async () => {
     try {
-      const response = await fetch('http://localhost:8000/chat', {
+      const response = await fetch('https://analytica-ai-backend-68kc.onrender.com/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: 'New Analysis', user_id: user.id }),

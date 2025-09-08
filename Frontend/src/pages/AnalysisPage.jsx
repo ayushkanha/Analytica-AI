@@ -33,7 +33,7 @@ const AnalysisPage = ({ cleanedData, c_id, setC_id, setActivePage, fileName }) =
     const fetchChats = async () => {
       if (!user?.id) return;
       try {
-        const response = await fetch(`http://localhost:8000/chats/${user.id}`);
+        const response = await fetch(`https://analytica-ai-backend-68kc.onrender.com/chats/${user.id}`);
         if (response.ok) {
           const data = await response.json();
           setChats(data);
@@ -63,7 +63,7 @@ const AnalysisPage = ({ cleanedData, c_id, setC_id, setActivePage, fileName }) =
       if (c_id) {
         setMessages([]);
         try {
-          const response = await fetch(`http://localhost:8000/chat/${c_id}/messages`);
+          const response = await fetch(`https://analytica-ai-backend-68kc.onrender.com/chat/${c_id}/messages`);
           if (response.ok) {
             const data = await response.json();
             const formattedMessages = data.map((msg) => ([
@@ -117,7 +117,7 @@ const AnalysisPage = ({ cleanedData, c_id, setC_id, setActivePage, fileName }) =
       const loadingMessage = { id: `ai-loading-${Date.now()}`, type: 'ai', content: 'Analyzing your data...', timestamp: new Date(), isLoading: true };
       setMessages((prev) => [...prev, loadingMessage]);
       try {
-        const response = await fetch('http://localhost:8000/analytics', {
+        const response = await fetch('https://analytica-ai-backend-68kc.onrender.com/analytics', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ df: cleanedData || [], query: currentInput, c_id, user_id: user.id, filename: fileName }),
@@ -146,7 +146,7 @@ const AnalysisPage = ({ cleanedData, c_id, setC_id, setActivePage, fileName }) =
     }
     console.log('Saving graph to Supabase:', graphData);
     try {
-      const response = await fetch('http://localhost:8000/graphs', {
+      const response = await fetch('https://analytica-ai-backend-68kc.onrender.com/graphs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

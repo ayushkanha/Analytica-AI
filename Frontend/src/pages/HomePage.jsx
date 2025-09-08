@@ -3,7 +3,7 @@ import { Database, BarChart3, FileText } from 'lucide-react';
 import FeatureCard from '../components/FeatureCard';
 import { useUser,SignIn } from "@clerk/clerk-react"; // or @clerk/nextjs
 import './HomePageBackground.css';
-
+import { ParticleNetwork } from '../components/ParticleNetwork';
 const HomePage = ({setActivePage }) => {
   const features = [
     {
@@ -26,6 +26,7 @@ const HomePage = ({setActivePage }) => {
   return (
     <div className="antialiased">
       {/* Hero Section */}
+      <ParticleNetwork className="opacity-60" />
       <main className="gradient-container flex items-center justify-center p-4">
         <div className="content-wrapper text-center text-white">
           <h1 className="text-5xl md:text-6xl font-bold text-gray-200 mb-6 leading-tight">
@@ -46,6 +47,7 @@ const HomePage = ({setActivePage }) => {
             Get Started Now
           </button>
         </div>
+        
       </main>
 
       {/* Features Section */}

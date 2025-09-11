@@ -17,9 +17,24 @@ function App() {
   const [c_id, setC_id] = useState(null);
   const [fileName, setFileName] = useState(null);
   const { user } = useUser();
+
+  useEffect(() => {
+    fetch(import.meta.env.VITE_API_URL)
+      .then(response => {
+        if (response.ok) {
+          console.log('Backend wakeup call successful');
+        } else {
+          console.error('Backend wakeup call failed');
+        }
+      })
+      .catch(error => {
+        console.error('Error during backend wakeup call:', error);
+      });
+  }, []);
+
   const handleNavigateToCleaning = async () => {
     try {
-      const response = await fetch('https://analytica-ai-backend-68kc.onrender.com/chat', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: 'New Analysis', user_id: user.id }),

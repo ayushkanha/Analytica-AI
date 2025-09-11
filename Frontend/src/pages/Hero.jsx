@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-
+import LiquidGlass from 'liquid-glass-react'
 export default function Hero() {
   const canvasRef = useRef(null);
 
@@ -91,9 +91,10 @@ export default function Hero() {
           <button className="px-6 py-3 bg-indigo-600 rounded-lg font-semibold hover:bg-indigo-500">
             Start building for free
           </button>
+          <LiquidGlass>
           <button className="px-6 py-3 border border-gray-400 rounded-lg font-semibold hover:bg-gray-700">
             Watch demo
-          </button>
+          </button></LiquidGlass>
         </div>
       </div>
     </div>

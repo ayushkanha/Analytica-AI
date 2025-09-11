@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Plot from 'react-plotly.js';
 
-// --- Mock Clerk's useUser hook. Replace this with your actual import ---
+
 import { useUser, SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/clerk-react';
 import { Send, Bot, User, Database, Plus, Menu, X, MoreVertical, Save, LayoutDashboard } from 'lucide-react';
 
@@ -18,7 +18,7 @@ const DraggableGraphItem = ({ graph }) => {
     return (
         <div 
             id={`drag-${graph.id}`} 
-            className="draggable-chart bg-gray-700 p-3 rounded-lg flex items-center space-x-3 hover:bg-indigo-600 transition-colors duration-200 cursor-grab" 
+            className="draggable-chart bg-[#303030] p-3 rounded-lg flex items-center space-x-3 hover:bg-indigo-900 transition-colors duration-200 cursor-grab" 
             data-graph={JSON.stringify(graph)} // Store full graph data
         >
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
@@ -156,6 +156,8 @@ const Dashboard = ({ c_id, setActivePage }) => {
     const [interactReady, setInteractReady] = useState(false);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [selectedBg, setSelectedBg] = useState('Grad 1');
+    const [uploadedBg, setUploadedBg] = useState(null);
+    const fileInputRef = useRef(null);
     const dropzoneRef = useRef(null);
     
     // --- NOTIFICATION ---
@@ -350,15 +352,16 @@ const Dashboard = ({ c_id, setActivePage }) => {
         'Grad 4': Grad4,
     };
 
+
     return (
-        <div className="flex h-screen bg-gray-900 text-white font-sans overflow-hidden">
+        <div className="flex h-screen bg-[#181818] text-white font-sans overflow-hidden">
             {/* Sidebar */}
             
             <aside
-                className={`bg-gray-800 p-4 shrink-0 overflow-y-auto flex flex-col transition-all duration-300 ${
+                className={`bg-[#181818] p-4 shrink-0 overflow-y-auto flex flex-col transition-all duration-300 ${
                     sidebarCollapsed ? 'w-16' : 'w-64'
                 }`}
-                style={{ minWidth: sidebarCollapsed ? '4rem' : '16rem' }}
+                style={{ minWidth: sidebarCollapsed ? '2rem' : '10rem' }}
             >
                 <div className="flex items-center gap-3" onClick={() => setActivePage('home')} style={{ cursor: 'pointer' }}>
                         <img src="/logo.png" alt="Analytica Logo" className="h-8 w-8" />
@@ -408,19 +411,43 @@ const Dashboard = ({ c_id, setActivePage }) => {
                     <h1 className="text-2xl font-bold text-gray-200">My Dashboard</h1>
                     <div className="flex items-center space-x-4">
                         {/* Background dropdown with label */}
-                        <div className="flex items-center space-x-2 pl-200">
+                        <div className="flex items-center space-x-2 pl-150">
                             <label htmlFor="dashboard-bg-select" className="text-gray-400 font-medium">Background:</label>
                             <select
                                 id="dashboard-bg-select"
                                 value={selectedBg}
-                                onChange={e => setSelectedBg(e.target.value)}
+                                onChange={e => {
+                                    setSelectedBg(e.target.value);
+                                    setTimeout(() => {
+                                        if (e.target.value === 'upload' && fileInputRef.current) {
+                                            fileInputRef.current.click();
+                                        }
+                                    }, 0);
+                                }}
                                 className="bg-gray-700 text-white rounded-lg px-3 py-2 focus:outline-none border border-gray-600"
                                 style={{ minWidth: 120, appearance: 'auto' }}
                             >
                                 {Object.keys(backgrounds).map(bg => (
                                     <option key={bg} value={bg}>{bg}</option>
                                 ))}
+                                <option value="upload">Upload your own</option>
                             </select>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                ref={fileInputRef}
+                                onChange={e => {
+                                    const file = e.target.files[0];
+                                    if (file) {
+                                        const reader = new FileReader();
+                                        reader.onload = (ev) => {
+                                            setUploadedBg(ev.target.result);
+                                        };
+                                        reader.readAsDataURL(file);
+                                    }
+                                }}
+                                className="ml-2 text-gray-300 hidden"
+                            />
                         </div>
                         <button onClick={saveDashboardLayout} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">
                             Save Layout
@@ -452,7 +479,7 @@ const Dashboard = ({ c_id, setActivePage }) => {
                         id="dashboard-grid" 
                         className="w-full h-full rounded-lg border-2 border-dashed border-gray-600 relative overflow-hidden"
                         style={{
-                            backgroundImage: `url(${backgrounds[selectedBg]})`,
+                            backgroundImage: selectedBg === 'upload' && uploadedBg ? `url(${uploadedBg})` : `url(${backgrounds[selectedBg]})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                         }}

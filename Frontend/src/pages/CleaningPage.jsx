@@ -247,7 +247,7 @@ const CleaningPage = ({ setActivePage, setCleanedData, c_id, setFileName, user_i
 
 
   return (
-    <div className="min-h-screen bg-gray-900 px-6 py-8">
+    <div className="min-h-screen bg-[#171f2c] px-8 py-10 pt-13">
       <div className="max-w-6xl mx-auto mt-20">
         {/* Header Section */}
         <div className="text-center mb-8">
@@ -334,7 +334,7 @@ const CleaningPage = ({ setActivePage, setCleanedData, c_id, setFileName, user_i
             <div className="flex justify-center">
               <label
                 htmlFor="file-upload"
-                className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200 cursor-pointer inline-block"
+                className="bg-teal-500 hover:bg-[#9b368b] text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200 cursor-pointer inline-block"
               >
                 Choose File
               </label>

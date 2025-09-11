@@ -3,7 +3,9 @@ import styled from 'styled-components';
 
 const Button =({ text, onClick })=> {
   return (
+    
     <StyledWrapper>
+      
       <div className="sp">
         <button className="sparkle-button"
         onClick={onClick}>

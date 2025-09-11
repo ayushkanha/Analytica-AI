@@ -16,7 +16,7 @@ const Navbar = ({ activePage, setActivePage, handleNavigateToCleaning }) => {
 
   return (
     // Wrapper to give padding and keep the navbar in the document flow
-    <header className="w-full p-4 font-inter absolute top-0 z-50 px-40 py-5">
+    <header className="w-full p-4 font-inter absolute top-0 z-50 px-40 py-5 pt-10">
       {/* The navbar itself with the translucent, glowing effect */}
       <div className="group container mx-auto flex items-center justify-between p-3 bg-black/30 backdrop-blur-md rounded-4xl border-0.1 border-white shadow-[0_0_25px_rgba(46,75,165,1)] relative">
         

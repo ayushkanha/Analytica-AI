@@ -205,7 +205,7 @@ const Dashboard = ({ c_id, setActivePage }) => {
 
                 // 2. Fetch available graphs from API
                 try {
-                    const response = await fetch(`https://analytica-ai-backend-68kc.onrender.com/graphs/${userId}`);
+                    const response = await fetch(`${import.meta.env.VITE_API_URL}/graphs/${userId}`);
                     if (response.ok) {
                         const data = await response.json();
                         const parsedData = data.map(graph => {

@@ -30,7 +30,7 @@ const Navbar = ({ activePage, setActivePage, handleNavigateToCleaning }) => {
         </div>
 
         {/* Navigation Links - Centered */}
-        <div className="hidden md:flex items-center space-x-6 text-gray-300 text-sm">
+        <div className="hidden md:flex items-center space-x-6 text-gray-300 text- sm font-medium">
           <button
             onClick={() => handleNavClick('home')}
             className={`hover:text-white transition-colors duration-200 ${
@@ -65,7 +65,7 @@ const Navbar = ({ activePage, setActivePage, handleNavigateToCleaning }) => {
                   >
                     Clean Data
                   </button>
-                  <button
+                    <button
                     onClick={() => handleNavClick('analysis')}
                     className="block w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/5 transition-colors duration-200"
                   >

@@ -3,19 +3,24 @@ import React, { useState, useRef } from 'react';
 import Draggable from 'react-draggable';
 import './VideoPlayer.css';
 import {Database, BarChart3, FileText, Rocket, Users, Zap  } from 'lucide-react';
-import FeatureCard from '../components/FeatureCard';
 import { useUser,SignIn } from "@clerk/clerk-react";
-import bg1 from '../assets/bg1.png';
+import bg1 from '../assets/bg4.png';
 import { ParticleNetwork } from '@/components/ParticleNetwork';
 import { BorderBeam } from "@/components/lightswind/border-beam"
-import Hyperspeed from './Hyperspeed';
-import GlassSurface from './GlassSurface'
-import ScrollFloat from './ScrollFloat';
-import DarkVeil from './DarkVeil';
+import bgCleaning from '../assets/4.png';
+import bgTraining from '../assets/5.png';
+import bgVisualization from '../assets/6.png';
+
+import heroVideo from '../assets/herosection.mp4';
+import featuresectionVideo from '../assets/featuresection.mp4';
+import yourLeftSideImage from '../assets/fs.png';
+
+
 const HomePage = ({setActivePage }) => {
   const { isSignedIn } = useUser();
   const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
   const nodeRef = useRef(null);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
 
   const openVideoPlayer = () => setIsVideoPlayerOpen(true);
   const closeVideoPlayer = () => setIsVideoPlayerOpen(false);
@@ -32,6 +37,104 @@ const LightningIcon = () => (
     <path d="M13 10V3L4 14h7v7l9-11h-7z" />
   </svg>
 );
+const DataCleaningIcon = () => (
+    <svg className="w-8 h-8 text-white mr-3 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
+    </svg>
+);
+
+const ModelTrainingIcon = () => (
+    <svg className="w-8 h-8 text-white mr-3 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V8.25a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 8.25v7.5A2.25 2.25 0 0 0 6.75 18Z" />
+    </svg>
+);
+
+const VisualizationIcon = () => (
+     <svg className="w-8 h-8 text-white mr-3 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V5.75A2.25 2.25 0 0 0 18 3.5H6A2.25 2.25 0 0 0 3.75 5.75v12.5A2.25 2.25 0 0 0 6 20.25Z" />
+    </svg>
+);
+
+
+const cardData = [
+    {
+        id: 1,
+        title: "Data Cleaning",
+              description: "Automatically clean and prepare your data with intelligent preprocessing tools that handle missing values, duplicates, and inconsistencies."
+,
+        icon: <DataCleaningIcon />,
+        imageUrl: "https://placehold.co/200x150/0f172a/FFFFFF?text=Data+Node",
+        backgroundImageUrl: bgCleaning, 
+        shadow: "shadow-blue-900/50",
+        position: "top-0",
+        zIndex: "z-30"
+    },
+    {
+        id: 2,
+        title: "Smart Analysis",
+              description: "Leverage AI-powered analytics to uncover hidden patterns, trends, and insights in your data with natural language queries."
+,
+        icon: <BarChart3 className="w-8 h-8 text-white mr-3 shrink-0" />,
+        imageUrl: "https://placehold.co/200x150/134e4a/FFFFFF?text=Neural+Net",
+        backgroundImageUrl: bgTraining, 
+        shadow: "shadow-teal-900/50",
+        position: "top-24",
+        zIndex: "z-20"
+    },
+    {
+        id: 3,
+        title: "Visualization",
+      description: "Generate comprehensive, professional reports with visualizations and insights that tell the story of your data."
+        ,        icon: <FileText className="w-8 h-8 text-white mr-3 shrink-0" />,
+        imageUrl: "https://placehold.co/200x150/3b0764/FFFFFF?text=Insights",
+        backgroundImageUrl: bgVisualization,
+        shadow: "shadow-purple-900/50",
+        position: "top-48",
+        zIndex: "z-10"
+    }
+];
+
+const Card = ({ title, description, icon, imageUrl, backgroundImageUrl, shadow, position, zIndex }) => {
+    const cardClasses = `
+        group absolute left-0 right-0 w-80 h-13 pb-4 hover:h-[410px]
+        bg-cover bg-center rounded-2xl shadow-2xl ${shadow}
+        overflow-hidden transition-all duration-500 ease-in-out
+        hover:z-50 hover:-translate-y-[170px]
+        ${position} ${zIndex}
+    `;
+
+    return (
+        <div
+            className={cardClasses.trim()}
+            style={{ backgroundImage: `url(${backgroundImageUrl})` }}
+        >
+
+            <div className="relative w-full h-full gap-8">
+                {/* <div className="absolute top-6 left-1/2  -translate-x-1/2 w-[220px] bg-white/20 p-4 rounded-xl transition-all duration-500 ease-in-out opacity-0 group-hover:opacity-100">
+                    <img src={imageUrl} alt={`${title} illustration`} className="mx-auto rounded-lg" />
+                </div> */}
+
+                <div className="absolute left-1/2 -translate-x-1/2 top-1/2 pt-5 -translate-y-1/2 w-max flex items-center justify-center transition-all duration-500 ease-in-out group-hover:top-48 group-hover:-translate-y-0 group-hover:p-2">
+                    {icon}
+                    <h2 className="text-2xl font-bold text-white whitespace-nowrap">{title}</h2>
+                </div>
+
+                <div className="absolute bottom-2 left-6 right-6 text-center transition-all duration-500 ease-in-out opacity-0 group-hover:opacity-100 group-hover:bottom">
+                     <p className="text-white text-md font-medium">
+                        {description}
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
+
+
+
+
+
 
   const handleButtonClick = () => {
     if (isSignedIn) {
@@ -61,25 +164,38 @@ const LightningIcon = () => (
   return (
     <div className="antialiased">
       {isVideoPlayerOpen && (
-        <Draggable nodeRef={nodeRef} handle=".video-player-header">
-          <div ref={nodeRef} className="video-player-overlay">
-            <div className="video-player-header">
-              <h3>Analytica.ai Demo</h3>
-              <button onClick={closeVideoPlayer} className="video-player-close-btn">&times;</button>
-            </div>
-            <div className="video-player-content">
-              <iframe
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
-                title="YouTube video player"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
-            </div>
-          </div>
-        </Draggable>
-      )}
-      {/* Hero Section */}
+  <Draggable nodeRef={nodeRef} handle=".video-player-header">
+    
+    <div
+      ref={nodeRef}
+      className="video-player-overlay w-[200px] h-auto rounded-lg overflow-hidden shadow-lg bg-black"
+      style={{ width: "500px", height: "auto" }}
+    >
+      <div className="video-player-header flex justify-between items-center p-2 bg-gray-800 text-white">
+        <h3 className="text-xl">Analytica.ai Demo</h3>
+        <button
+          onClick={closeVideoPlayer}
+          className="video-player-close-btn text-xl"
+        >
+          &times;
+        </button>
+      </div>
+
+      <div className="video-player-content w-full h-full">
+        <iframe
+          className="w-full h-full"
+          src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
+          title="YouTube video player"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope;"
+          allowFullScreen
+        ></iframe>
+      </div>
+    </div>
+  </Draggable>
+)}
+
+
       <BorderBeam
   size={200}
   duration={6}
@@ -95,68 +211,112 @@ const LightningIcon = () => (
   pauseOnHover={false}
   speedMultiplier={1}
 />
-      <main className="relative flex items-center justify-center p-4" style={{ backgroundImage: `url(${bg1})`, backgroundSize: 'cover', backgroundPosition: 'center', minHeight: '100vh' }}>
-      <div className="absolute bottom-0 left-0 w-full h-96 bg-gradient-to-t from-black to-transparent z-10 blur-2xl" />
-      <ParticleNetwork />
-        <div className="content-wrapper text-center text-white pt-20">
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-200 mb-6 leading-tight">
-            Turn Your Data Into{' '}
-            <span className="text-[#6aa2d8]">Dialogue</span>.
-          </h1>
-          <div className="inline-flex items-center px-6 py-3 glass-badge rounded-full mb-8 animate-fade-in">
-          <span className="text-sm font-medium text-white/90 tracking-wide">✨ Welcome to Analytica.ai</span>
-        </div>
-          <p className="text-xl text-gray-400 mb-8 leading-relaxed max-w-2xl mx-auto">
-            Turn raw data into insights with our AI-powered visualization platform. Clean, analyze, and report effortlessly.
-          </p>
+<main
+  className="relative flex items-center p-4 md:px-16" // 👈 Changed: Removed justify-center and adjusted padding
+  style={{
+    backgroundImage: `url(${bg1})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    minHeight: '100vh',
+  }}
+>
+  <ParticleNetwork />
+  <div className="flex flex-col md:flex-row max-w-8xl">
+    {/* Left Side: Text Content */}
 
-      <div className="flex items-center justify-center gap-6">
-        <div className="relative group">
-            <button 
-      style={{ fontFamily: "'Orbitron', sans-serif" }}
-      className="relative group p-0.5 rounded-full bg-gradient-to-tr from-cyan-700 via-sky-800 to-indigo-900 shadow-lg shadow-sky-950/50 transition-all duration-300 ease-in-out hover:shadow-2xl hover:shadow-cyan-700/40 hover:scale-105 active:scale-100"
-    >
-      <span className="relative block px-8 py-3 overflow-hidden font-bold text-white uppercase rounded-full bg-[#0f172a] leading-none">
-          
-          <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[linear-gradient(90deg,rgba(0,255,255,0.1)_1px,transparent_1px),linear-gradient(0deg,rgba(0,255,255,0.1)_1px,transparent_1px)] bg-[length:2rem_2rem] bg-center"></span>
-          
-          <span className="relative z-10 flex items-center">
-              
-              <span className="transition-transform duration-300 ease-in-out group-hover:translate-x-2">
-                  Get Started
-              </span>
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 ml-2 text-cyan-400 opacity-0 -translate-x-5 transform transition-all duration-300 ease-in-out group-hover:opacity-100 group-hover:translate-x-0">
-                  <path d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z"></path>
-              </svg>
+    <div className="md:w-1/2 text-left mb-10 md:mb-0 md:pr-10 ml-23">
+      <div className="content-wrapper text-white pt-18">
+        <h1 className="text-5xl md:text-6xl font-bold text-gray-200 mb-6 leading-tight pt-10" >
+          Turn Your Data Into{' '}
+          <span className="text-[#644bfc]">Dialogue</span>.
+        </h1>
+        <div className="inline-flex items-center px-6 py-3 glass-badge rounded-full mb-8 animate-fade-in">
+          <span className="text-sm font-medium text-white/90 tracking-wide">
+            ✨ Welcome to Analytica.ai
           </span>
-      </span>
-    </button>
         </div>
-
-        <button onClick={openVideoPlayer} class="group flex items-center justify-center gap-3 bg-black/50 text-white/90 border border-white/10 rounded-full px-6 py-3 transition-all duration-300 hover:border-white/20 hover:bg-black/70 active:scale-95">
-            <svg className="w-6 h-6 text-white/70 group-hover:text-white transition-colors duration-300" 
-                 xmlns="http://www.w3.org/2000/svg" 
-                 viewBox="0 0 24 24" 
-                 fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"></path>
+        {/* 👇 Changed: Removed mx-auto from the paragraph */}
+        <p className="text-xl text-gray-400 mb-8 leading-relaxed max-w-2xl">
+          Turn raw data into insights with our AI-powered visualization
+          platform. Clean, analyze, and report effortlessly.
+        </p>
+        {/* 👇 Changed: justify-center to justify-start */}
+        <div className="flex justify-start gap-6">
+          <div className="relative group">
+            <button
+              style={{ fontFamily: "'Orbitron', sans-serif" }}
+              onClick={handleButtonClick}
+              className="relative p-0.5 rounded-full bg-gradient-to-tr from-cyan-700 via-sky-800 to-indigo-900 shadow-lg shadow-sky-950/50 transition-all duration-300 ease-in-out hover:shadow-2xl hover:shadow-cyan-700/40 hover:scale-105 active:scale-100"
+            >
+              <span className="relative block px-8 py-3 overflow-hidden font-bold text-white uppercase rounded-full bg-[#0f172a] leading-none">
+                <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[linear-gradient(90deg,rgba(0,255,255,0.1)_1px,transparent_1px),linear-gradient(0deg,rgba(0,255,255,0.1)_1px,transparent_1px)] bg-[length:2rem_2rem] bg-center"></span>
+                <span className="relative z-10 inline-flex items-center">
+                  <span className="transition-transform duration-300 ease-in-out group-hover:translate-x-2">
+                    Get Started
+                  </span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="w-6 h-6 ml-2 text-transparent transition-all duration-300 ease-in-out transform -translate-x-5 group-hover:text-cyan-400 group-hover:translate-x-0"
+                  >
+                    <path d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z"></path>
+                  </svg>
+                </span>
+              </span>
+            </button>
+          </div>
+          <button
+            onClick={openVideoPlayer}
+            className="group flex items-center justify-center gap-3 bg-black/50 text-white/90 border border-white/10 rounded-full px-6 py-3 transition-all duration-300 hover:border-white/20 hover:bg-black/70 active:scale-95"
+          >
+            <svg
+              className="w-6 h-6 text-white/70 group-hover:text-white transition-colors duration-300"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"></path>
             </svg>
-            
-            <span class="text-lg font-medium">Watch Demo</span>
-        </button>
+            <span className="text-lg font-medium">Watch Demo</span>
+          </button>
+        </div>
+      </div>
     </div>
 
-        </div>
-        
-      </main>
+    {/* Right Side: Video Player */}
+    <div className="md:w-1/2 z-10 pt-30 pl-10 rounded-3xl">
+<div className="relative w-[700px] aspect-video rounded-2xl overflow-hidden shadow-xl shadow-blue-400/90">
 
-      
+        <video
+          className="w-full h-full object-cover"
+          src={heroVideo}
+          autoPlay
+          loop
+          muted
+          playsInline
+        ></video>
+      </div>
+    </div>
+  </div>
+</main>
+
+
 
 
       {/* Features Section with Hyperspeed background */}
       <section className="bg-black relative overflow-hidden pb-20" style={{ minHeight: '60vh' }}>
         {/* Hyperspeed background */}
-        <DarkVeil className="absolute inset-0 z-0" />
+        <div className="absolute inset-0 z-0">
+        <video
+          className="w-full h-full object-cover z-0 pt-20"
+          src={featuresectionVideo}
+          autoPlay
+          loop
+          muted
+          playsInline
+        ></video>
+        </div>
         <div className="max-w-6xl mx-auto relative mt-20 pb-12" style={{ zIndex: 1 }}>
           <div className="relative text-center z-10">
         <div className="flex items-center justify-center mb-6">
@@ -167,58 +327,58 @@ const LightningIcon = () => (
         </div>
 
         <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight">
-          <ScrollFloat as="span" containerClassName="my-0" textClassName="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight">
             Everything You Need for
-          </ScrollFloat>
           <br />
-          <ScrollFloat as="span" containerClassName="my-0" textClassName="text-4xl md:text-5xl lg:text-6xl font-extrabold ">
 
                           Data Excellence
-            
-          
-          </ScrollFloat>
+                   
         </h2>
         
         <p className="mt-6 max-w-2xl mx-auto text-lg text-gray-300 mb-16">
           Transform your data workflow with cutting-edge AI technology. From cleaning to insights, we've got you covered.
         </p>
       </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <FeatureCard
-                key={index}
-                icon={feature.icon}
-                title={feature.title}
-                description={feature.description}
-              />
+            <section className="flex flex-col md:flex-row gap-8 p-8 max-w-7xl mx-auto">
+  {/* Left side with image */}
+  <div className="md:w-1/2">
+    <img 
+      src={yourLeftSideImage}
+      alt="Left side illustration"
+      className="w-full h-auto max-w-md"
+    />
+  </div>
+
+  {/* Right side with stacked cards */}
+  <div className="md:w-1/2 flex flex-col gap-4">
+    
+        <div className="relative w-80 h-72">
+            {cardData.map(card => (
+                <Card 
+                    key={card.id}
+                    title={card.title}
+                    description={card.description}
+                    icon={card.icon}
+                    imageUrl={card.imageUrl}
+                    backgroundImageUrl={card.backgroundImageUrl}
+                    shadow={card.shadow}
+                    position={card.position}
+                    zIndex={card.zIndex}
+                />
             ))}
-          </div>
+        </div>
+    
+  </div>
+</section>   
+
         </div>
       
-
-        {/* <div className="max-w-4xl mx-auto text-center relative mt-16 "  style={{ zIndex: 2 }}>
-          <h2 className="text-3xl font-bold text-gray-200 mb-4">
-            Ready to Transform Your Data?
-          </h2>
-          <p className="text-lg text-gray-400 mb-8">
-            Join thousands of data professionals who trust AI Visualizer for their analytics needs.
-          </p>
-          <button 
-            onClick={handleButtonClick}
-            class="group relative bg-slate-900 h-16 w-64 border-2 border-teal-600 text-white text-base font-bold rounded-xl overflow-hidden transform transition-all duration-500 hover:scale-105 hover:border-emerald-400 hover:text-emerald-300 p-3 text-left before:absolute before:w-10 before:h-10 before:content[''] before:right-2 before:top-2 before:z-10 before:bg-indigo-500 before:rounded-full before:blur-lg before:transition-all before:duration-500 after:absolute after:z-10 after:w-16 after:h-16 after:content[''] after:bg-teal-400 after:right-6 after:top-4 after:rounded-full after:blur-lg after:transition-all after:duration-500 hover:before:right-10 hover:before:-bottom-4 hover:before:blur hover:after:-right-6 hover:after:scale-110">
-           
-            Start Your Journey
-          </button>
-        </div> */}
-        </section>
-      <section className="bg-black relative overflow-hidden pb-20" style={{ minHeight: '60vh' }}>
-      <div className="relative text-center pt-12 z-10">
-        <GlassSurface
+<div className="relative text-center pt-12 z-10">
+        {/* <GlassSurface
           width="100%"
           height="auto"
           borderRadius={24}
           className="max-w-4xl mx-auto"
-        >
+        > */}
           <div className="p-8 md:p-12 flex flex-col items-center text-center">
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight">
               Ready to Transform <br />
@@ -241,7 +401,7 @@ const LightningIcon = () => (
               </p>
             </div>
           </div>
-        </GlassSurface>
+        {/* </GlassSurface> */}
       </div>
 </section>
 

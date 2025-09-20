@@ -141,7 +141,7 @@ const CleaningPage = ({ setActivePage, setCleanedData, c_id, setFileName, user_i
     console.log('Process button clicked. Sending payload:', payload);
     
     try {
-      const response = await fetch('https://analytica-ai-backend-68kc.onrender.com/process', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/process`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

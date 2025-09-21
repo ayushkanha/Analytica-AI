@@ -1,5 +1,5 @@
 import '../getStartedButton.css';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 import Draggable from 'react-draggable';
 import './VideoPlayer.css';
 import {Database, BarChart3, FileText, Rocket, Users, Zap  } from 'lucide-react';
@@ -7,20 +7,80 @@ import { useUser,SignIn } from "@clerk/clerk-react";
 import bg1 from '../assets/bg4.png';
 import { ParticleNetwork } from '@/components/ParticleNetwork';
 import { BorderBeam } from "@/components/lightswind/border-beam"
-import bgCleaning from '../assets/4.png';
-import bgTraining from '../assets/5.png';
-import bgVisualization from '../assets/6.png';
+import bgCleaning from '../assets/fc1.png';
+import bgTraining from '../assets/fc2.png';
+import bgVisualization from '../assets/fc3.png';
 
 import heroVideo from '../assets/herosection.mp4';
-import featuresectionVideo from '../assets/featuresection.mp4';
+
 import yourLeftSideImage from '../assets/fs.png';
+import BoomerangVideo from './BoomerangVideo';
 
 
 const HomePage = ({setActivePage }) => {
   const { isSignedIn } = useUser();
   const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
   const nodeRef = useRef(null);
-  const [hoveredIndex, setHoveredIndex] = useState(null);
+
+  // Refs for the elements to connect
+  const leftImageRef = useRef(null);
+  const card1Ref = useRef(null);
+  const card2Ref = useRef(null);
+  const card3Ref = useRef(null);
+
+  // State to hold the SVG path data
+  const [pathD, setPathD] = useState({ path1: '', path2: '', path3: '' });
+  // New state to track hovered card
+  const [hoveredCard, setHoveredCard] = useState(null); // null, 1, 2, or 3
+
+  useLayoutEffect(() => {
+    const calculatePaths = () => {
+      // Find the container using its stable ID
+      const container = document.getElementById('features-visual-container');
+
+      if (container && leftImageRef.current && card1Ref.current && card2Ref.current && card3Ref.current) {
+        // --- THIS IS THE KEY FIX ---
+        // We now get the container's position reliably via its ID
+        const containerRect = container.getBoundingClientRect();
+        // -------------------------
+
+        const leftRect = leftImageRef.current.getBoundingClientRect();
+        const card1Rect = card1Ref.current.getBoundingClientRect();
+        const card2Rect = card2Ref.current.getBoundingClientRect();
+        const card3Rect = card3Ref.current.getBoundingClientRect();
+
+        // Calculate start point relative to the SVG container
+        const startX = leftRect.right - containerRect.left;
+        const startY = leftRect.top + leftRect.height / 2 - containerRect.top;
+
+        const createPath = (endRect) => {
+          // Calculate end point relative to the SVG container
+          const endX = endRect.left - containerRect.left;
+          const endY = endRect.top + endRect.height / 2 - containerRect.top;
+          // Use a cubic Bezier curve for a smooth S-bend or gentle curve
+          const controlPoint1X = startX + (endX - startX) * 0.3; // Closer to start
+          const controlPoint1Y = startY;
+          const controlPoint2X = startX + (endX - startX) * 0.7; // Closer to end
+          const controlPoint2Y = endY;
+
+          return `M ${startX} ${startY} C ${controlPoint1X} ${controlPoint1Y}, ${controlPoint2X} ${controlPoint2Y}, ${endX} ${endY}`;
+        };
+
+
+        setPathD({
+          path1: createPath(card1Rect),
+          path2: createPath(card2Rect),
+          path3: createPath(card3Rect),
+        });
+      }
+    };
+
+    // Recalculate paths on mount and whenever the window resizes
+    calculatePaths();
+    window.addEventListener('resize', calculatePaths);
+    return () => window.removeEventListener('resize', calculatePaths);
+  }, []);
+
 
   const openVideoPlayer = () => setIsVideoPlayerOpen(true);
   const closeVideoPlayer = () => setIsVideoPlayerOpen(false);
@@ -51,8 +111,8 @@ const ModelTrainingIcon = () => (
 
 const VisualizationIcon = () => (
      <svg className="w-8 h-8 text-white mr-3 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V5.75A2.25 2.25 0 0 0 18 3.5H6A2.25 2.25 0 0 0 3.75 5.75v12.5A2.25 2.25 0 0 0 6 20.25Z" />
-    </svg>
+         <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V5.75A2.25 2.25 0 0 0 18 3.5H6A2.25 2.25 0 0 0 3.75 5.75v12.5A2.25 2.25 0 0 0 6 20.25Z" />
+     </svg>
 );
 
 
@@ -60,116 +120,93 @@ const cardData = [
     {
         id: 1,
         title: "Data Cleaning",
-              description: "Automatically clean and prepare your data with intelligent preprocessing tools that handle missing values, duplicates, and inconsistencies."
-,
+        description: "Automatically clean and prepare your data with intelligent preprocessing tools that handle missing values, duplicates, and inconsistencies.",
         icon: <DataCleaningIcon />,
-        imageUrl: "https://placehold.co/200x150/0f172a/FFFFFF?text=Data+Node",
-        backgroundImageUrl: bgCleaning, 
+        backgroundImageUrl: bgCleaning,
         shadow: "shadow-blue-900/50",
         position: "top-0",
-        zIndex: "z-30"
+        zIndex: "z-30",
+        ref: card1Ref,
+        color: "#EF4480" // Pink
     },
     {
         id: 2,
         title: "Smart Analysis",
-              description: "Leverage AI-powered analytics to uncover hidden patterns, trends, and insights in your data with natural language queries."
-,
+        description: "Leverage AI-powered analytics to uncover hidden patterns, trends, and insights in your data with natural language queries.",
         icon: <BarChart3 className="w-8 h-8 text-white mr-3 shrink-0" />,
-        imageUrl: "https://placehold.co/200x150/134e4a/FFFFFF?text=Neural+Net",
-        backgroundImageUrl: bgTraining, 
+        backgroundImageUrl: bgTraining,
         shadow: "shadow-teal-900/50",
         position: "top-24",
-        zIndex: "z-20"
+        zIndex: "z-20",
+        ref: card2Ref,
+        color: "#60D3FF" // Cyan
     },
     {
         id: 3,
         title: "Visualization",
-      description: "Generate comprehensive, professional reports with visualizations and insights that tell the story of your data."
-        ,        icon: <FileText className="w-8 h-8 text-white mr-3 shrink-0" />,
-        imageUrl: "https://placehold.co/200x150/3b0764/FFFFFF?text=Insights",
+        description: "Generate comprehensive, professional reports with visualizations and insights that tell the story of your data.",
+        icon: <FileText className="w-8 h-8 text-white mr-3 shrink-0" />,
         backgroundImageUrl: bgVisualization,
         shadow: "shadow-purple-900/50",
         position: "top-48",
-        zIndex: "z-10"
+        zIndex: "z-10",
+        ref: card3Ref,
+        color: "rgba(122, 118, 255, 1)" // Purple
     }
 ];
 
-const Card = ({ title, description, icon, imageUrl, backgroundImageUrl, shadow, position, zIndex }) => {
+// Card component now accepts onMouseEnter and onMouseLeave props
+const Card = React.forwardRef(({ id, title, description, icon, backgroundImageUrl, shadow, position, zIndex, onMouseEnter, onMouseLeave,color }, ref) => {
     const cardClasses = `
-        group absolute left-0 right-0 w-80 h-13 pb-4 hover:h-[410px]
-        bg-cover bg-center rounded-2xl shadow-2xl ${shadow}
+        group absolute left-0 w-full sm:w-80 h-13 pb-4 hover:h-[410px]
+        bg-cover bg-center rounded-4xl shadow-2xl ${shadow}
         overflow-hidden transition-all duration-500 ease-in-out
-        hover:z-50 hover:-translate-y-[170px]
-        ${position} ${zIndex}
+        hover:z-50 hover:-translate-y-[170px] border border-white-500/60 outline-2 outline-offset-4 outline-dashed outline-white 
+        ${position} ${zIndex} 
     `;
 
     return (
         <div
+            ref={ref}
             className={cardClasses.trim()}
-            style={{ backgroundImage: `url(${backgroundImageUrl})` }}
+            style={{ backgroundImage: `url(${backgroundImageUrl})`, borderColor: color }}
+            onMouseEnter={() => onMouseEnter(id)} 
+            onMouseLeave={() => onMouseLeave(null)} 
         >
 
             <div className="relative w-full h-full gap-8">
-                {/* <div className="absolute top-6 left-1/2  -translate-x-1/2 w-[220px] bg-white/20 p-4 rounded-xl transition-all duration-500 ease-in-out opacity-0 group-hover:opacity-100">
-                    <img src={imageUrl} alt={`${title} illustration`} className="mx-auto rounded-lg" />
-                </div> */}
-
-                <div className="absolute left-1/2 -translate-x-1/2 top-1/2 pt-5 -translate-y-1/2 w-max flex items-center justify-center transition-all duration-500 ease-in-out group-hover:top-48 group-hover:-translate-y-0 group-hover:p-2">
+                <div className="absolute left-1/2 -translate-x-1/2 top-1/2 pt-5 -translate-y-1/2 w-max flex items-center justify-center transition-all duration-500 ease-in-out group-hover:top-48 group-hover:-translate-y-0 group-hover:">
                     {icon}
-                    <h2 className="text-2xl font-bold text-white whitespace-nowrap">{title}</h2>
+                    <h2 className="text-xl font-medium text-white whitespace-nowrap">{title}</h2>
                 </div>
 
-                <div className="absolute bottom-2 left-6 right-6 text-center transition-all duration-500 ease-in-out opacity-0 group-hover:opacity-100 group-hover:bottom">
-                     <p className="text-white text-md font-medium">
-                        {description}
-                    </p>
+                <div className="absolute bottom-6 left-6 right-6 text-center transition-all duration-500 ease-in-out opacity-0 group-hover:opacity-100 group-hover:bottom">
+                        <p className="text-white text-md font-light">
+                            {description}
+                        </p>
                 </div>
             </div>
         </div>
     );
-};
-
-
-
-
-
-
-
+});
 
   const handleButtonClick = () => {
     if (isSignedIn) {
-      setActivePage('dashboard');
+      setActivePage('cleaning');
     } else {
       alert("Whoa there! Looks like you're trying to get to the good stuff. You'll need to log in first to unlock the magic.");
     }
   };
-  const features = [
-    {
-      icon: Database,
-      title: "Data Cleaning",
-      description: "Automatically clean and prepare your data with intelligent preprocessing tools that handle missing values, duplicates, and inconsistencies."
-    },
-    {
-      icon: BarChart3,
-      title: "Smart Analysis",
-      description: "Leverage AI-powered analytics to uncover hidden patterns, trends, and insights in your data with natural language queries."
-    },
-    {
-      icon: FileText,
-      title: "Automated Reports",
-      description: "Generate comprehensive, professional reports with visualizations and insights that tell the story of your data."
-    }
-  ];
+
 
   return (
     <div className="antialiased">
       {isVideoPlayerOpen && (
   <Draggable nodeRef={nodeRef} handle=".video-player-header">
-    
+
     <div
       ref={nodeRef}
-      className="video-player-overlay w-[200px] h-auto rounded-lg overflow-hidden shadow-lg bg-black"
-      style={{ width: "500px", height: "auto" }}
+      className="video-player-overlay w-11/12 sm:w-3/4 md:w-1/2 h-auto rounded-lg overflow-hidden shadow-lg bg-black"
     >
       <div className="video-player-header flex justify-between items-center p-2 bg-gray-800 text-white">
         <h3 className="text-xl">Analytica.ai Demo</h3>
@@ -212,7 +249,7 @@ const Card = ({ title, description, icon, imageUrl, backgroundImageUrl, shadow, 
   speedMultiplier={1}
 />
 <main
-  className="relative flex items-center p-4 md:px-16" // 👈 Changed: Removed justify-center and adjusted padding
+  className="relative flex items-center p-4 sm:px-6 lg:px-8"
   style={{
     backgroundImage: `url(${bg1})`,
     backgroundSize: 'cover',
@@ -221,12 +258,12 @@ const Card = ({ title, description, icon, imageUrl, backgroundImageUrl, shadow, 
   }}
 >
   <ParticleNetwork />
-  <div className="flex flex-col md:flex-row max-w-8xl">
+  <div className="flex flex-col md:flex-row max-w-8xl mx-auto">
     {/* Left Side: Text Content */}
 
-    <div className="md:w-1/2 text-left mb-10 md:mb-0 md:pr-10 ml-23">
+    <div className="md:w-1/2 text-left mb-10 md:mb-0 md:pr-10">
       <div className="content-wrapper text-white pt-18">
-        <h1 className="text-5xl md:text-6xl font-bold text-gray-200 mb-6 leading-tight pt-10" >
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-200 mb-6 leading-tight pt-10" >
           Turn Your Data Into{' '}
           <span className="text-[#644bfc]">Dialogue</span>.
         </h1>
@@ -235,22 +272,20 @@ const Card = ({ title, description, icon, imageUrl, backgroundImageUrl, shadow, 
             ✨ Welcome to Analytica.ai
           </span>
         </div>
-        {/* 👇 Changed: Removed mx-auto from the paragraph */}
-        <p className="text-xl text-gray-400 mb-8 leading-relaxed max-w-2xl">
+        <p className="text-lg sm:text-xl text-gray-400 mb-8 leading-relaxed max-w-2xl">
           Turn raw data into insights with our AI-powered visualization
           platform. Clean, analyze, and report effortlessly.
         </p>
-        {/* 👇 Changed: justify-center to justify-start */}
-        <div className="flex justify-start gap-6">
+        <div className="flex flex-col sm:flex-row justify-start gap-6">
           <div className="relative group">
             <button
               style={{ fontFamily: "'Orbitron', sans-serif" }}
               onClick={handleButtonClick}
-              className="relative p-0.5 rounded-full bg-gradient-to-tr from-cyan-700 via-sky-800 to-indigo-900 shadow-lg shadow-sky-950/50 transition-all duration-300 ease-in-out hover:shadow-2xl hover:shadow-cyan-700/40 hover:scale-105 active:scale-100"
+              className="relative p-0.5 rounded-full bg-gradient-to-tr from-cyan-700 via-sky-800 to-indigo-900 shadow-lg shadow-sky-950/50 transition-all duration-300 ease-in-out hover:shadow-2xl hover:shadow-cyan-700/40 hover:scale-105 active:scale-100 w-full sm:w-auto"
             >
               <span className="relative block px-8 py-3 overflow-hidden font-bold text-white uppercase rounded-full bg-[#0f172a] leading-none">
                 <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[linear-gradient(90deg,rgba(0,255,255,0.1)_1px,transparent_1px),linear-gradient(0deg,rgba(0,255,255,0.1)_1px,transparent_1px)] bg-[length:2rem_2rem] bg-center"></span>
-                <span className="relative z-10 inline-flex items-center">
+                <span className="relative z-10 inline-flex items-center justify-center w-full sm:w-auto">
                   <span className="transition-transform duration-300 ease-in-out group-hover:translate-x-2">
                     Get Started
                   </span>
@@ -268,7 +303,7 @@ const Card = ({ title, description, icon, imageUrl, backgroundImageUrl, shadow, 
           </div>
           <button
             onClick={openVideoPlayer}
-            className="group flex items-center justify-center gap-3 bg-black/50 text-white/90 border border-white/10 rounded-full px-6 py-3 transition-all duration-300 hover:border-white/20 hover:bg-black/70 active:scale-95"
+            className="group flex items-center justify-center gap-3 bg-black/50 text-white/90 border border-white/10 rounded-full px-6 py-3 transition-all duration-300 hover:border-white/20 hover:bg-black/70 active:scale-95 w-full sm:w-auto"
           >
             <svg
               className="w-6 h-6 text-white/70 group-hover:text-white transition-colors duration-300"
@@ -285,9 +320,8 @@ const Card = ({ title, description, icon, imageUrl, backgroundImageUrl, shadow, 
     </div>
 
     {/* Right Side: Video Player */}
-    <div className="md:w-1/2 z-10 pt-30 pl-10 rounded-3xl">
-<div className="relative w-[700px] aspect-video rounded-2xl overflow-hidden shadow-xl shadow-blue-400/90">
-
+    <div className="md:w-1/2 z-10 pt-10 md:pt-30 rounded-3xl">
+      <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-xl shadow-blue-400/90">
         <video
           className="w-full h-full object-cover"
           src={heroVideo}
@@ -301,110 +335,130 @@ const Card = ({ title, description, icon, imageUrl, backgroundImageUrl, shadow, 
   </div>
 </main>
 
-
-
-
       {/* Features Section with Hyperspeed background */}
-      <section className="bg-black relative overflow-hidden pb-20" style={{ minHeight: '60vh' }}>
-        {/* Hyperspeed background */}
-        <div className="absolute inset-0 z-0">
-        <video
-          className="w-full h-full object-cover z-0 pt-20"
-          src={featuresectionVideo}
-          autoPlay
-          loop
-          muted
-          playsInline
-        ></video>
-        </div>
-        <div className="max-w-6xl mx-auto relative mt-20 pb-12" style={{ zIndex: 1 }}>
-          <div className="relative text-center z-10">
-        <div className="flex items-center justify-center mb-6">
-          <div className="flex items-center gap-2 px-4 py-1 bg-gray-800/50 border border-gray-700 rounded-full">
-            <LightningIcon />
-            <span className="text-lg font-medium text-gray-300">Powerful Features</span>
-          </div>
-        </div>
+ <section className="bg-black relative overflow-hidden pb-20" style={{ minHeight: '60vh' }}>
+  {/* Hyperspeed background */}
+<BoomerangVideo />
 
-        <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight">
-            Everything You Need for
-          <br />
+  {/* ==================================================================== */}
+  {/* SECTION 1: FOR CENTERED TEXT CONTENT                             */}
+  {/* ==================================================================== */}
+  <div className="max-w-6xl mx-auto relative mt-20 pb-12" style={{ zIndex: 1 }}>
+    <div className="relative text-center z-10 px-4"> {/* Added padding for mobile */}
+      <div className="flex items-center justify-center mb-6">
+        <div className="flex items-center gap-2 px-4 py-1 bg-gray-800/50 border border-gray-700 rounded-full">
+          <LightningIcon />
+          <span className="text-lg font-medium text-gray-300">Powerful Features</span>
+        </div>
+      </div>
+      <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight">
+        Everything You Need for
+        <br />
+        <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+        Data Excellence
+        </span>
+      </h2>
+      <p className="mt-6 max-w-2xl mx-auto text-lg text-gray-300 mb-16">
+        Transform your data workflow with cutting-edge AI technology. From cleaning to insights, we've got you covered.
+      </p>
+    </div>
+  </div>
 
-                          Data Excellence
-                   
-        </h2>
-        
-        <p className="mt-6 max-w-2xl mx-auto text-lg text-gray-300 mb-16">
-          Transform your data workflow with cutting-edge AI technology. From cleaning to insights, we've got you covered.
+  {/* ==================================================================== */}
+  {/* SECTION 2: FOR WIDER VISUAL CONTENT (IMAGE + CARDS)              */}
+  {/* --- THIS IS THE KEY FIX --- */}
+  <div id="features-visual-container" className="relative w-full px-4 sm:px-8 lg:px-12">
+    {/* Main flex container for left/right alignment */}
+    <div className="flex flex-col md:flex-row gap-8 items-center justify-between">
+      {/* Left side with image */}
+      <div className="md:w-1/2 flex justify-center items-center">
+        <img
+          ref={leftImageRef}
+          src={yourLeftSideImage}
+          alt="Left side illustration"
+          className="w-full h-auto max-w-xl z-10"
+        />
+      </div>
+
+      {/* Right side with stacked cards */}
+      <div className="md:w-1/2 flex flex-col items-center pt-20">
+        <div className="relative w-80 h-96 right-0">
+          {cardData.map(card => (
+            <Card
+              key={card.id}
+              id={card.id}
+              ref={card.ref}
+              title={card.title}
+              description={card.description}
+              icon={card.icon}
+              backgroundImageUrl={card.backgroundImageUrl}
+              shadow={card.shadow}
+              position={card.position}
+              zIndex={card.zIndex}
+              onMouseEnter={() => setHoveredCard(card.id)}
+              onMouseLeave={() => setHoveredCard(null)}
+              color={card.color}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+
+    {/* SVG for connecting lines - Placed relative to the new wider container */}
+    <div className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none">
+  <svg 
+    width="100%" 
+    height="100%" 
+    className="overflow-visible" 
+    style={{ transform: "translateX()" }} // shift left by 20px
+  >
+    <defs>
+<linearGradient id="default-line-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+  <stop offset="0%" stopColor="#8101f8ff" />
+  <stop offset="100%" stopColor="#0062ffff" />
+</linearGradient>
+    </defs>
+    {cardData.map(card => (
+      <path
+        key={`path-${card.id}`}
+        d={pathD[`path${card.id}`]}
+        stroke={hoveredCard === card.id ? card.color : 'url(#default-line-gradient)'}
+        strokeWidth="2"
+        fill="none"
+        opacity={hoveredCard === null || hoveredCard === card.id ? 1 : 0.3}
+        className="transition-opacity duration-300 ease-in-out"
+      />
+    ))}
+  </svg>
+</div>
+  </div>
+
+  {/* ==================================================================== */}
+  {/* SECTION 3: FINAL CALL TO ACTION                                    */}
+  {/* ==================================================================== */}
+  <div className="relative text-center pt-40 z-10">
+    <div className="p-8 md:p-12 flex flex-col items-center text-center">
+      <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight">
+        Ready to Transform <br />
+        <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+          Your Data Journey?
+        </span>
+      </h2>
+      <p className="mt-6 max-w-2xl text-lg text-gray-300">
+        Join thousands of data professionals who trust Analytica.ai for their analytics needs. Start your journey today.
+      </p>
+      <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-6">
+        <button onClick={handleButtonClick} className="flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-cyan-400 to-blue-500 text-white font-semibold rounded-full shadow-lg shadow-cyan-500/20 hover:scale-105 hover:shadow-xl hover:shadow-cyan-500/30 transition-all duration-300 ease-in-out">
+          <span>Start Your Journey</span>
+          <Rocket/>
+        </button>
+        <p className="text-sm text-gray-400 mt-4 sm:mt-0">
+          No credit card required • Free 14-day trial
         </p>
       </div>
-            <section className="flex flex-col md:flex-row gap-8 p-8 max-w-7xl mx-auto">
-  {/* Left side with image */}
-  <div className="md:w-1/2">
-    <img 
-      src={yourLeftSideImage}
-      alt="Left side illustration"
-      className="w-full h-auto max-w-md"
-    />
+    </div>
   </div>
-
-  {/* Right side with stacked cards */}
-  <div className="md:w-1/2 flex flex-col gap-4">
-    
-        <div className="relative w-80 h-72">
-            {cardData.map(card => (
-                <Card 
-                    key={card.id}
-                    title={card.title}
-                    description={card.description}
-                    icon={card.icon}
-                    imageUrl={card.imageUrl}
-                    backgroundImageUrl={card.backgroundImageUrl}
-                    shadow={card.shadow}
-                    position={card.position}
-                    zIndex={card.zIndex}
-                />
-            ))}
-        </div>
-    
-  </div>
-</section>   
-
-        </div>
-      
-<div className="relative text-center pt-12 z-10">
-        {/* <GlassSurface
-          width="100%"
-          height="auto"
-          borderRadius={24}
-          className="max-w-4xl mx-auto"
-        > */}
-          <div className="p-8 md:p-12 flex flex-col items-center text-center">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight">
-              Ready to Transform <br />
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                Your Data Journey?
-              </span>
-            </h2>
-            
-            <p className="mt-6 max-w-2xl text-lg text-gray-300">
-              Join thousands of data professionals who trust Analytica.ai for their analytics needs. Start your journey today.
-            </p>
-            
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-6">
-              <button className="flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-cyan-400 to-blue-500 text-white font-semibold rounded-full shadow-lg shadow-cyan-500/20 hover:scale-105 hover:shadow-xl hover:shadow-cyan-500/30 transition-all duration-300 ease-in-out">
-                <span>Start Your Journey</span>
-                <Rocket/>
-              </button>
-              <p className="text-sm text-gray-400 mt-4 sm:mt-0">
-                No credit card required • Free 14-day trial
-              </p>
-            </div>
-          </div>
-        {/* </GlassSurface> */}
-      </div>
 </section>
-
 
     </div>
   );

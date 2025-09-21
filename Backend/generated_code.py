@@ -3,22 +3,34 @@ import pandas as pd
 import numpy as np
 
 # Load the dataset
-df = pd.read_csv(r"C:\Users\ayush\AppData\Local\Temp\tmp6du69yjc.csv")
+df = pd.read_csv(r"C:\Users\ayush\AppData\Local\Temp\tmpn6slt61b.csv")
 
-#User Instruction implementation
-for col in df.columns:
-    if df[col].isnull().any():
-        if pd.api.types.is_numeric_dtype(df[col]):
-            df[col] = df[col].fillna(0)
-        else:
-            df[col] = df[col].fillna('Not Available')
+# 1. Handling Missing Values:
+# The summary shows missing values in columns '5' and '10'.  We'll impute them with the mean.
+
+for col in ['5', '10']:
+    df[col] = df[col].fillna(df[col].mean())
 
 
-# Save the cleaned dataset
+# 2. Handling potential outliers (Illustrative - adapt based on domain knowledge):
+#  Outliers are subjective and depend on the context. This is a simple example.  A more robust approach might use IQR or other statistical methods.
+
+# Example:  If a bowler's average is extremely high, it might be an outlier.
+# This is a simplified check; a more sophisticated analysis might be needed in a real-world scenario.
+# df = df[df['Ave'] < 100] # Remove rows where Ave is unrealistically high
+
+
+# 3. Data Type Consistency:
+# The summary indicates consistent data types. No action needed here.
+
+# 4. Duplicate Check: Already handled (0 duplicates).
+
+# 5. Save the cleaned dataset
 df.to_csv("output.csv", index=False)
 
-# Print summary statistics after cleaning
-print("Rows:", df.shape[0])
-print("Columns:", df.shape[1])
-print("Missing counts:", df.isnull().sum().to_dict())
-print("Data types:", df.dtypes.to_dict())
+# 6. Print summary statistics after cleaning
+print("Dataset Summary After Cleaning:")
+print("Rows:", len(df))
+print("Columns:", len(df.columns))
+print("Missing Values:", df.isnull().sum())
+print("Data Types:", df.dtypes)

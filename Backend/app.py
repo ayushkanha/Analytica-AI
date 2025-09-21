@@ -46,6 +46,11 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
+class ContactForm(BaseModel):
+    name: str
+    email: str
+    message: str
+
 class ProcessRequest(BaseModel):
     data: List[Dict[str, Any]]
     dictionary: Dict[str, Any]
@@ -101,6 +106,17 @@ async def get_chat_messages(c_id: str):
     try:
         response = supabase.table('messages').select("*").eq('c_id', c_id).order('created_at').execute()
         return response.data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/contact")
+async def handle_contact_form(contact_form: ContactForm):
+    try:
+        response = supabase.table('query').insert(contact_form.dict()).execute()
+        if response.data:
+            return {"message": "Form submitted successfully"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to save data to Supabase")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

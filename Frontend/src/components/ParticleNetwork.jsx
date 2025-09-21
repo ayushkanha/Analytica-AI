@@ -93,7 +93,7 @@ export const ParticleNetwork = ({ className = "" }) => {
   return (
     <canvas
       ref={canvasRef}
-      className={`absolute inset-0 pointer-events-none ${className}`}
+      className={`absolute top-0 right-0 h-full w-full pointer-events-none ${className}`}
       style={{ zIndex: 1 }}
     />
   );

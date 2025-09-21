@@ -2,17 +2,8 @@ import React, { useState } from 'react';
 import { ChevronDown, User } from 'lucide-react';
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
 
-const Navbar = ({ activePage, setActivePage, handleNavigateToCleaning }) => {
+const Navbar = ({ activePage, setActivePage }) => {
   const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false);
-
-  const handleNavClick = (page) => {
-    if (page === 'cleaning') {
-      handleNavigateToCleaning();
-    } else {
-      setActivePage(page);
-    }
-    setIsProductDropdownOpen(false);
-  };
 
   return (
     // Wrapper to give padding and keep the navbar in the document flow
@@ -23,16 +14,16 @@ const Navbar = ({ activePage, setActivePage, handleNavigateToCleaning }) => {
         {/* Logo and App Name */}
         <div 
           className="flex items-center gap-3 cursor-pointer pl-4"
-          onClick={() => handleNavClick('home')}
+          onClick={() => setActivePage('home')}
         >
           <img src="/logo.png" alt="Analytica Logo" className="h-8 w-8" />
           <span className="text-2xl font-bold text-white">Analytica</span>
         </div>
 
         {/* Navigation Links - Centered */}
-        <div className="hidden md:flex items-center space-x-6 text-gray-300 text- sm font-medium">
+        <div className="hidden md:flex items-center space-x-6 text-gray-300 text-lg font-medium">
           <button
-            onClick={() => handleNavClick('home')}
+            onClick={() => setActivePage('home')}
             className={`hover:text-white transition-colors duration-200 ${
               activePage === 'home' ? 'text-white font-medium' : ''
             }`}
@@ -60,13 +51,13 @@ const Navbar = ({ activePage, setActivePage, handleNavigateToCleaning }) => {
                   className="bg-black/60 backdrop-blur-lg border border-white/10 rounded-lg shadow-lg z-50"
                 >
                   <button
-                    onClick={() => handleNavClick('cleaning')}
+                    onClick={() => setActivePage('cleaning')}
                     className="block w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/5 transition-colors duration-200"
                   >
                     Clean Data
                   </button>
                     <button
-                    onClick={() => handleNavClick('analysis')}
+                    onClick={() => setActivePage('analysis')}
                     className="block w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/5 transition-colors duration-200"
                   >
                     Analyze Data
@@ -78,7 +69,7 @@ const Navbar = ({ activePage, setActivePage, handleNavigateToCleaning }) => {
                     Dashboard
                   </button>
                   {/* <button
-                    onClick={() => handleNavClick('reports')}
+                    onClick={() => setActivePage('reports')}
                     className="block w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/5 transition-colors duration-200 rounded-b-lg"
                   >
                     Reports
@@ -88,10 +79,10 @@ const Navbar = ({ activePage, setActivePage, handleNavigateToCleaning }) => {
             )}
           </div>
           {/* Placeholder links from the image */}
-          <button className="hover:text-white transition-colors duration-200">Solution</button>
+          <button onClick={() => setActivePage('solution')} className="hover:text-white transition-colors duration-200">Solution</button>
 
-          <button className="hover:text-white transition-colors duration-200">About us</button>
-          <button className="hover:text-white transition-colors duration-200">Contact</button>
+          <button onClick={() => setActivePage('about')} className="hover:text-white transition-colors duration-200">About us</button>
+          <button onClick={() => setActivePage('contact')} className="hover:text-white transition-colors duration-200">Contact</button>
         </div>
 
         {/* Auth Buttons */}

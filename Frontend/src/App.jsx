@@ -7,7 +7,8 @@ import ResultsPage from './pages/ResultsPage';
 import AnalysisPage from './pages/AnalysisPage';
 import ReportPage from './pages/ReportPage';
 import Dashboard from './pages/Dashboard';
-
+import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
 import { useUser, SignIn } from "@clerk/clerk-react"; // or @clerk/nextjs
 
 function App() {
@@ -16,7 +17,7 @@ function App() {
   const [cleanedData, setCleanedData] = useState(null);
   const [c_id, setC_id] = useState(null);
   const [fileName, setFileName] = useState(null);
-  const { user } = useUser();
+  const { user, isSignedIn } = useUser();
 
   useEffect(() => {
     fetch(import.meta.env.VITE_API_URL)
@@ -51,10 +52,24 @@ function App() {
     }
   };
 
+  const handleNavClick = (page) => {
+    if (isSignedIn) {
+      if (page === 'cleaning') {
+        handleNavigateToCleaning();
+      } else {
+        setActivePage(page);
+      }
+    } else {
+      alert("Whoa there! Looks like you're trying to get to the good stuff. You'll need to log in first to unlock the magic.");
+    }
+  };
+
   const renderPage = () => {
     switch (activePage) {
       case 'home':
-        return <HomePage setActivePage={handleNavigateToCleaning} />;
+        return <HomePage setActivePage={handleNavClick} />;
+      case 'contact': // Add a case for the contact page
+        return <ContactPage />;
       case 'cleaning':
         return <CleaningPage setActivePage={setActivePage} setCleanedData={setCleanedData} c_id={c_id} setFileName={setFileName} user_id={user.id}/>;
       case 'results':
@@ -67,16 +82,18 @@ function App() {
         return <AnalysisPage cleanedData={cleanedData} c_id={c_id} setC_id={setC_id} setActivePage={setActivePage} fileName={fileName} />;
       case 'reports':
         return <ReportPage setActivePage={setActivePage} />;
+      case 'about':
+        return <AboutPage />;
       case 'dashboard':
         return <Dashboard c_id={c_id} setActivePage={setActivePage} />;
       default:
-        return <HomePage setActivePage={handleNavigateToCleaning} />;
+        return <HomePage setActivePage={handleNavClick} />;
     }
   };
 
   return (
     <div className="App dark">
-      {activePage !== 'analysis' && activePage !== 'dashboard' && <Navbar activePage={activePage} setActivePage={setActivePage} handleNavigateToCleaning={handleNavigateToCleaning} />}
+      {activePage !== 'analysis' && activePage !== 'dashboard' && <Navbar activePage={activePage} setActivePage={handleNavClick} />}
       {renderPage()}
     </div>
   );

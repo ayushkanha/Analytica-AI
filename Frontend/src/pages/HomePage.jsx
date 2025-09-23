@@ -5,7 +5,6 @@ import './VideoPlayer.css';
 import {Database, BarChart3, FileText, Rocket, Users, Zap  } from 'lucide-react';
 import { useUser,SignIn } from "@clerk/clerk-react";
 import bg1 from '../assets/bg4.png';
-import { ParticleNetwork } from '@/components/ParticleNetwork';
 import { BorderBeam } from "../components/lightswind/border-beam"
 import bgCleaning from '../assets/fc1.png';
 import bgTraining from '../assets/fc2.png';

@@ -46,6 +46,7 @@
     "@studio-freight/lenis": "^1.0.42",
     "@supabase/supabase-js": "^2.56.0",
     "@tailwindcss/vite": "^4.1.7",
+    "@tsparticles/react": "^3.0.0",
     "autoprefixer": "^10.4.21",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

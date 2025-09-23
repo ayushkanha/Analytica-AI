@@ -11,12 +11,10 @@ import bgCleaning from '../assets/fc1.png';
 import bgTraining from '../assets/fc2.png';
 import bgVisualization from '../assets/fc3.png';
 import { SparkleParticles } from '@/components/lightswind/sparkle-particles';
-import Globe from '@/components/lightswind/Globe';
 import heroVideo from '../assets/herosection.mp4';
 
 import yourLeftSideImage from '../assets/fs.png';
 import BoomerangVideo from './BoomerangVideo';
-import { SmoothCursor } from "@/components/lightswind/smooth-cursor";
 const HomePage = ({setActivePage }) => {
   const { isSignedIn } = useUser();
   const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);

@@ -1,37 +1,44 @@
 import React, { useState } from 'react';
-import { ChevronDown, User } from 'lucide-react';
+import { ChevronDown, User, Menu, X } from 'lucide-react';
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
 
 const Navbar = ({ activePage, setActivePage }) => {
   const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // A helper to handle clicks on mobile nav links
+  const handleMobileLinkClick = (page) => {
+    setActivePage(page);
+    setIsMobileMenuOpen(false);
+  };
 
   return (
     // Wrapper to give padding and keep the navbar in the document flow
-    <header className="w-full p-4 font-inter absolute top-0 z-50 px-40 py-5 pt-10">
+    <header className="w-full p-4 font-inter absolute top-0 z-50 md:px-40 md:py-5 md:pt-10">
       {/* The navbar itself with the translucent, glowing effect */}
-      <div className="group container mx-auto flex items-center justify-between p-3 bg-black/30 backdrop-blur-md rounded-4xl border-0.1 border-white shadow-[0_0_25px_rgba(46,75,165,1)] relative">
+      <div className="container mx-auto flex items-center justify-between p-3 bg-black/30 backdrop-blur-md rounded-2xl md:rounded-4xl border-0.1 border-white shadow-[0_0_25px_rgba(46,75,165,1)] relative">
         
         {/* Logo and App Name */}
         <div 
           className="flex items-center gap-3 cursor-pointer pl-4"
-          onClick={() => setActivePage('home')}
+          onClick={() => handleMobileLinkClick('home')}
         >
           <img src="/logo.png" alt="Analytica Logo" className="h-8 w-8" />
           <span className="text-2xl font-bold text-white">Analytica</span>
         </div>
 
-        {/* Navigation Links - Centered */}
-        <div className="hidden md:flex items-center space-x-6 text-gray-300 text-lg font-medium">
+        {/* Navigation Links - Centered for Desktop */}
+        <nav className="hidden md:flex items-center space-x-6 text-gray-300 text-lg font-medium">
           <button
             onClick={() => setActivePage('home')}
             className={`hover:text-white transition-colors duration-200 ${
-              activePage === 'home' ? 'text-white font-medium' : ''
+              activePage === 'home' ? 'text-white font-semibold' : ''
             }`}
           >
             Home
           </button>
 
-          {/* Product Dropdown */}
+          {/* Product Dropdown for Desktop */}
           <div 
             className="relative"
             onMouseEnter={() => setIsProductDropdownOpen(true)}
@@ -68,25 +75,17 @@ const Navbar = ({ activePage, setActivePage }) => {
                   >
                     Dashboard
                   </button>
-                  {/* <button
-                    onClick={() => setActivePage('reports')}
-                    className="block w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-white/5 transition-colors duration-200 rounded-b-lg"
-                  >
-                    Reports
-                  </button> */}
                 </div>
               </div>
             )}
           </div>
-          {/* Placeholder links from the image */}
           <button onClick={() => setActivePage('solution')} className="hover:text-white transition-colors duration-200">Solution</button>
-
           <button onClick={() => setActivePage('about')} className="hover:text-white transition-colors duration-200">About us</button>
           <button onClick={() => setActivePage('contact')} className="hover:text-white transition-colors duration-200">Contact</button>
-        </div>
+        </nav>
 
-        {/* Auth Buttons */}
-        <div className='pr-4'>
+        {/* Auth Buttons for Desktop */}
+        <div className='hidden md:block pr-4'>
           <SignedOut>
             <SignInButton afterSignInUrl="/home">
               <button className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors duration-200 border border-white/20 text-sm font-medium">
@@ -96,10 +95,58 @@ const Navbar = ({ activePage, setActivePage }) => {
             </SignInButton>
           </SignedOut>
           <SignedIn>
-            <UserButton afterSignOutUrl="/" className=" pt-1" />
+            <UserButton afterSignOutUrl="/" />
           </SignedIn>
         </div>
+
+        {/* Mobile Menu Button (Hamburger) */}
+        <div className="md:hidden pr-4">
+          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-white">
+            {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile Navigation Panel */}
+      {isMobileMenuOpen && (
+        <nav className="md:hidden fixed inset-0 top-24 bg-black/80 backdrop-blur-xl flex flex-col items-center justify-center space-y-8 text-2xl z-40">
+          <button onClick={() => handleMobileLinkClick('home')} className="text-gray-300 hover:text-white">Home</button>
+          
+          {/* Mobile version of Product dropdown */}
+          <div className="relative text-center">
+            <button onClick={() => setIsProductDropdownOpen(!isProductDropdownOpen)} className="flex items-center space-x-1 text-gray-300 hover:text-white">
+              <span>Product</span>
+              <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${isProductDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {isProductDropdownOpen && (
+              <div className="mt-4 space-y-4 text-xl">
+                 <button onClick={() => handleMobileLinkClick('cleaning')} className="block text-gray-400 hover:text-white">Clean Data</button>
+                 <button onClick={() => handleMobileLinkClick('analysis')} className="block text-gray-400 hover:text-white">Analyze Data</button>
+                 <button onClick={() => handleMobileLinkClick('dashboard')} className="block text-gray-400 hover:text-white">Dashboard</button>
+              </div>
+            )}
+          </div>
+
+          <button onClick={() => handleMobileLinkClick('solution')} className="text-gray-300 hover:text-white">Solution</button>
+          <button onClick={() => handleMobileLinkClick('about')} className="text-gray-300 hover:text-white">About us</button>
+          <button onClick={() => handleMobileLinkClick('contact')} className="text-gray-300 hover:text-white">Contact</button>
+          
+          {/* Auth buttons for mobile */}
+          <div className="pt-8">
+            <SignedOut>
+              <SignInButton afterSignInUrl="/home">
+                <button className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-lg transition-colors duration-200 border border-white/20 text-lg font-medium">
+                  <User className="w-5 h-5" />
+                  <span>Sign Up</span>
+                </button>
+              </SignInButton>
+            </SignedOut>
+            <SignedIn>
+              <UserButton afterSignOutUrl="/" />
+            </SignedIn>
+          </div>
+        </nav>
+      )}
     </header>
   );
 };

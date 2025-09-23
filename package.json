@@ -2,6 +2,7 @@
   "dependencies": {
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "lightswind": "^3.1.18",
     "lucide-react": "^0.544.0",
     "styled-components": "^6.1.19",
     "tailwind-merge": "^3.3.1",

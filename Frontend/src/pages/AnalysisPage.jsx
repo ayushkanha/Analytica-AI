@@ -181,7 +181,7 @@ const AnalysisPage = ({ cleanedData, c_id, setC_id, setActivePage, fileName }) =
     <div className="h-screen flex" style={{ backgroundColor: '#212121' }}>
       {/* Sidebar */}
       <div className={`transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-20'} flex flex-col flex-shrink-0`} style={{ backgroundColor: '#181818', color: 'white' }}>
-        <div className="flex items-center justify-between p-4 border-b border-gray-700 py-5">
+        <div className="flex items-center justify-between p-4 border-b border-gray-700 py-8">
           {isSidebarOpen && <h2 className="text-lg font-semibold">Chat History</h2>}
           <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-1 rounded-md hover:bg-gray-700">
             {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -334,7 +334,7 @@ const AnalysisPage = ({ cleanedData, c_id, setC_id, setActivePage, fileName }) =
             {/* Input Area */}
             <div className="bg-[#212121]  px-6 py-4 flex-shrink-0">
               <div className="max-w-5xl mx-auto">
-                <div className="flex items-center space-x-3 bg-[#303030] border border-gray-600 rounded-full pt-2 pr-2">
+                <div className="flex items-center space-x-3 bg-[#303030] border border-gray-600 rounded-full pt-2 pr-2 pl-2">
                   <div className="flex-1">
                     <textarea
                       value={inputValue}
@@ -368,7 +368,7 @@ const AnalysisPage = ({ cleanedData, c_id, setC_id, setActivePage, fileName }) =
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Ask anything about your data..."
-                className="w-full bg-gray-800 border border-gray-700 rounded-full py-4 pl-12 pr-20 text-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none"
+                className="w-full mr-10 bg-gray-800 border border-gray-700 rounded-full py-4 pl-12 pr-20 text-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none"
                 rows="1"
                 disabled={!c_id}
               />

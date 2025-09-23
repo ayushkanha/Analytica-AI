@@ -6,58 +6,58 @@ import {Database, BarChart3, FileText, Rocket, Users, Zap  } from 'lucide-react'
 import { useUser,SignIn } from "@clerk/clerk-react";
 import bg1 from '../assets/bg4.png';
 import { ParticleNetwork } from '@/components/ParticleNetwork';
-import { BorderBeam } from "@/components/lightswind/border-beam"
+import { BorderBeam } from "../components/lightswind/border-beam"
 import bgCleaning from '../assets/fc1.png';
 import bgTraining from '../assets/fc2.png';
 import bgVisualization from '../assets/fc3.png';
-
+import { SparkleParticles } from '@/components/lightswind/sparkle-particles';
+import Globe from '@/components/lightswind/Globe';
 import heroVideo from '../assets/herosection.mp4';
 
 import yourLeftSideImage from '../assets/fs.png';
 import BoomerangVideo from './BoomerangVideo';
-
-
+import { SmoothCursor } from "@/components/lightswind/smooth-cursor";
 const HomePage = ({setActivePage }) => {
   const { isSignedIn } = useUser();
   const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
   const nodeRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  // Refs for the elements to connect
   const leftImageRef = useRef(null);
   const card1Ref = useRef(null);
   const card2Ref = useRef(null);
   const card3Ref = useRef(null);
 
-  // State to hold the SVG path data
   const [pathD, setPathD] = useState({ path1: '', path2: '', path3: '' });
-  // New state to track hovered card
-  const [hoveredCard, setHoveredCard] = useState(null); // null, 1, 2, or 3
+  const [hoveredCard, setHoveredCard] = useState(null);
 
   useLayoutEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+      calculatePaths();
+    };
+
     const calculatePaths = () => {
-      // Find the container using its stable ID
+      if (isMobile) {
+        setPathD({ path1: '', path2: '', path3: '' });
+        return;
+      }
       const container = document.getElementById('features-visual-container');
 
       if (container && leftImageRef.current && card1Ref.current && card2Ref.current && card3Ref.current) {
-        // --- THIS IS THE KEY FIX ---
-        // We now get the container's position reliably via its ID
         const containerRect = container.getBoundingClientRect();
-        // -------------------------
 
         const leftRect = leftImageRef.current.getBoundingClientRect();
         const card1Rect = card1Ref.current.getBoundingClientRect();
         const card2Rect = card2Ref.current.getBoundingClientRect();
         const card3Rect = card3Ref.current.getBoundingClientRect();
 
-        // Calculate start point relative to the SVG container
         const startX = leftRect.right - containerRect.left;
         const startY = leftRect.top + leftRect.height / 2 - containerRect.top;
 
         const createPath = (endRect) => {
-          // Calculate end point relative to the SVG container
           const endX = endRect.left - containerRect.left;
           const endY = endRect.top + endRect.height / 2 - containerRect.top;
-          // Use a cubic Bezier curve for a smooth S-bend or gentle curve
           const controlPoint1X = startX + (endX - startX) * 0.3; // Closer to start
           const controlPoint1Y = startY;
           const controlPoint2X = startX + (endX - startX) * 0.7; // Closer to end
@@ -75,11 +75,10 @@ const HomePage = ({setActivePage }) => {
       }
     };
 
-    // Recalculate paths on mount and whenever the window resizes
-    calculatePaths();
-    window.addEventListener('resize', calculatePaths);
-    return () => window.removeEventListener('resize', calculatePaths);
-  }, []);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isMobile]);
 
 
   const openVideoPlayer = () => setIsVideoPlayerOpen(true);
@@ -103,17 +102,6 @@ const DataCleaningIcon = () => (
     </svg>
 );
 
-const ModelTrainingIcon = () => (
-    <svg className="w-8 h-8 text-white mr-3 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V8.25a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 8.25v7.5A2.25 2.25 0 0 0 6.75 18Z" />
-    </svg>
-);
-
-const VisualizationIcon = () => (
-     <svg className="w-8 h-8 text-white mr-3 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-         <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V5.75A2.25 2.25 0 0 0 18 3.5H6A2.25 2.25 0 0 0 3.75 5.75v12.5A2.25 2.25 0 0 0 6 20.25Z" />
-     </svg>
-);
 
 
 const cardData = [
@@ -124,10 +112,10 @@ const cardData = [
         icon: <DataCleaningIcon />,
         backgroundImageUrl: bgCleaning,
         shadow: "shadow-blue-900/50",
-        position: "top-0",
+        position: "md:absolute md:top-0",
         zIndex: "z-30",
         ref: card1Ref,
-        color: "#EF4480" // Pink
+        color: "#EF4480" 
     },
     {
         id: 2,
@@ -136,10 +124,10 @@ const cardData = [
         icon: <BarChart3 className="w-8 h-8 text-white mr-3 shrink-0" />,
         backgroundImageUrl: bgTraining,
         shadow: "shadow-teal-900/50",
-        position: "top-24",
+        position: "md:absolute md:top-24",
         zIndex: "z-20",
         ref: card2Ref,
-        color: "#60D3FF" // Cyan
+        color: "#60D3FF" 
     },
     {
         id: 3,
@@ -148,21 +136,20 @@ const cardData = [
         icon: <FileText className="w-8 h-8 text-white mr-3 shrink-0" />,
         backgroundImageUrl: bgVisualization,
         shadow: "shadow-purple-900/50",
-        position: "top-48",
+        position: "md:absolute md:top-48",
         zIndex: "z-10",
         ref: card3Ref,
-        color: "rgba(122, 118, 255, 1)" // Purple
+        color: "rgba(122, 118, 255, 1)"
     }
 ];
 
-// Card component now accepts onMouseEnter and onMouseLeave props
 const Card = React.forwardRef(({ id, title, description, icon, backgroundImageUrl, shadow, position, zIndex, onMouseEnter, onMouseLeave,color }, ref) => {
     const cardClasses = `
-        group absolute left-0 w-full sm:w-80 h-13 pb-4 hover:h-[410px]
+        group w-full sm:w-80 h-24 mb-4 md:h-13 md:pb-4 md:hover:h-[410px]
         bg-cover bg-center rounded-4xl shadow-2xl ${shadow}
         overflow-hidden transition-all duration-500 ease-in-out
-        hover:z-50 hover:-translate-y-[170px] border border-white-500/60 outline-2 outline-offset-4 outline-dashed outline-white 
-        ${position} ${zIndex} 
+        md:hover:z-50 md:hover:-translate-y-[170px] border border-white-500/60 outline-2 outline-offset-4 outline-dashed outline-white
+        ${position} ${zIndex}
     `;
 
     return (
@@ -170,12 +157,12 @@ const Card = React.forwardRef(({ id, title, description, icon, backgroundImageUr
             ref={ref}
             className={cardClasses.trim()}
             style={{ backgroundImage: `url(${backgroundImageUrl})`, borderColor: color }}
-            onMouseEnter={() => onMouseEnter(id)} 
-            onMouseLeave={() => onMouseLeave(null)} 
+            onMouseEnter={() => onMouseEnter(id)}
+            onMouseLeave={() => onMouseLeave(null)}
         >
 
-            <div className="relative w-full h-full gap-8">
-                <div className="absolute left-1/2 -translate-x-1/2 top-1/2 pt-5 -translate-y-1/2 w-max flex items-center justify-center transition-all duration-500 ease-in-out group-hover:top-48 group-hover:-translate-y-0 group-hover:">
+            <div className="relative w-full h-full flex items-center justify-center md:block">
+                <div className="md:absolute left-1/2 -translate-x-1/2 top-1/2 pt-5 -translate-y-1/2 w-max flex items-center justify-center transition-all duration-500 ease-in-out md:group-hover:top-48 md:group-hover:-translate-y-0">
                     {icon}
                     <h2 className="text-xl font-medium text-white whitespace-nowrap">{title}</h2>
                 </div>
@@ -201,12 +188,13 @@ const Card = React.forwardRef(({ id, title, description, icon, backgroundImageUr
 
   return (
     <div className="antialiased">
+
       {isVideoPlayerOpen && (
   <Draggable nodeRef={nodeRef} handle=".video-player-header">
 
     <div
       ref={nodeRef}
-      className="video-player-overlay w-11/12 sm:w-3/4 md:w-1/2 h-auto rounded-lg overflow-hidden shadow-lg bg-black"
+  className="video-player-overlay w-3/4 sm:w-1/2 md:w-1/3 h-auto rounded-lg overflow-hidden shadow-lg bg-black"
     >
       <div className="video-player-header flex justify-between items-center p-2 bg-gray-800 text-white">
         <h3 className="text-xl">Analytica.ai Demo</h3>
@@ -224,7 +212,7 @@ const Card = React.forwardRef(({ id, title, description, icon, backgroundImageUr
           src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
           title="YouTube video player"
           frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope;"
+          allow="accelerometer; autoplay;  encrypted-media; gyroscope;"
           allowFullScreen
         ></iframe>
       </div>
@@ -257,11 +245,32 @@ const Card = React.forwardRef(({ id, title, description, icon, backgroundImageUr
     minHeight: '100vh',
   }}
 >
-  <ParticleNetwork />
-  <div className="flex flex-col md:flex-row max-w-8xl mx-auto">
+<SparkleParticles
+  className="absolute inset-0 z-0"
+  maxParticleSize={1.5}
+  minParticleSize={0.8}
+  baseDensity={100}
+  maxSpeed={2}
+  minMoveSpeed={0.2}
+  maxOpacity={0.8}
+  customDirection="bottomLeft"
+  opacityAnimationSpeed={5}
+  minParticleOpacity={0.2}
+  particleColor="#00ffcc"
+  enableParallax={true}
+  enableHoverGrab={false}
+  backgroundColor="transparent"
+  zIndexLevel={-1}
+  clickEffect={true}
+  hoverMode="repulse"
+  particleCount={6}
+  particleShape="star"
+  enableCollisions={true}
+/>
+  <div className="flex flex-col md:flex-row max-w-8xl mx-auto items-center">
     {/* Left Side: Text Content */}
 
-    <div className="md:w-1/2 text-left mb-10 md:mb-0 md:pr-10">
+    <div className="md:w-1/2 text-center md:text-left mb-10 md:mb-0 md:pr-10">
       <div className="content-wrapper text-white pt-18">
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-200 mb-6 leading-tight pt-10" >
           Turn Your Data Into{' '}
@@ -272,11 +281,11 @@ const Card = React.forwardRef(({ id, title, description, icon, backgroundImageUr
             ✨ Welcome to Analytica.ai
           </span>
         </div>
-        <p className="text-lg sm:text-xl text-gray-400 mb-8 leading-relaxed max-w-2xl">
+        <p className="text-lg sm:text-xl text-gray-400 mb-8 leading-relaxed max-w-2xl mx-auto md:mx-0">
           Turn raw data into insights with our AI-powered visualization
           platform. Clean, analyze, and report effortlessly.
         </p>
-        <div className="flex flex-col sm:flex-row justify-start gap-6">
+        <div className="flex flex-col sm:flex-row justify-center md:justify-start gap-6">
           <div className="relative group">
             <button
               style={{ fontFamily: "'Orbitron', sans-serif" }}
@@ -320,7 +329,7 @@ const Card = React.forwardRef(({ id, title, description, icon, backgroundImageUr
     </div>
 
     {/* Right Side: Video Player */}
-    <div className="md:w-1/2 z-10 pt-10 md:pt-30 rounded-3xl">
+    <div className="md:w-1/2 z-10 pt-10 md:pt-30 rounded-3xl w-full">
       <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-xl shadow-blue-400/90">
         <video
           className="w-full h-full object-cover"
@@ -335,13 +344,10 @@ const Card = React.forwardRef(({ id, title, description, icon, backgroundImageUr
   </div>
 </main>
 
-      {/* Features Section with Hyperspeed background */}
  <section className="bg-black relative overflow-hidden pb-20" style={{ minHeight: '60vh' }}>
-  {/* Hyperspeed background */}
 <BoomerangVideo />
 
-  {/* ==================================================================== */}
-  {/* SECTION 1: FOR CENTERED TEXT CONTENT                             */}
+  {/* SECTION 1: */}
   {/* ==================================================================== */}
   <div className="max-w-6xl mx-auto relative mt-20 pb-12" style={{ zIndex: 1 }}>
     <div className="relative text-center z-10 px-4"> {/* Added padding for mobile */}
@@ -365,10 +371,10 @@ const Card = React.forwardRef(({ id, title, description, icon, backgroundImageUr
   </div>
 
   {/* ==================================================================== */}
-  {/* SECTION 2: FOR WIDER VISUAL CONTENT (IMAGE + CARDS)              */}
-  {/* --- THIS IS THE KEY FIX --- */}
+  {/* SECTION 2:*/}
+ 
   <div id="features-visual-container" className="relative w-full px-4 sm:px-8 lg:px-12">
-    {/* Main flex container for left/right alignment */}
+    {/* Main flex container*/}
     <div className="flex flex-col md:flex-row gap-8 items-center justify-between">
       {/* Left side with image */}
       <div className="md:w-1/2 flex justify-center items-center">
@@ -381,8 +387,8 @@ const Card = React.forwardRef(({ id, title, description, icon, backgroundImageUr
       </div>
 
       {/* Right side with stacked cards */}
-      <div className="md:w-1/2 flex flex-col items-center pt-20">
-        <div className="relative w-80 h-96 right-0">
+      <div className="md:w-1/2 flex flex-col items-center pt-8 md:pt-20">
+        <div className="relative w-full md:w-80 md:h-96">
           {cardData.map(card => (
             <Card
               key={card.id}
@@ -404,39 +410,40 @@ const Card = React.forwardRef(({ id, title, description, icon, backgroundImageUr
       </div>
     </div>
 
-    {/* SVG for connecting lines - Placed relative to the new wider container */}
+    {/* SVG for connecting lines */}
+    {!isMobile && (
     <div className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none">
-  <svg 
-    width="100%" 
-    height="100%" 
-    className="overflow-visible" 
-    style={{ transform: "translateX()" }} // shift left by 20px
-  >
-    <defs>
-<linearGradient id="default-line-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-  <stop offset="0%" stopColor="#8101f8ff" />
-  <stop offset="100%" stopColor="#0062ffff" />
-</linearGradient>
-    </defs>
-    {cardData.map(card => (
-      <path
-        key={`path-${card.id}`}
-        d={pathD[`path${card.id}`]}
-        stroke={hoveredCard === card.id ? card.color : 'url(#default-line-gradient)'}
-        strokeWidth="2"
-        fill="none"
-        opacity={hoveredCard === null || hoveredCard === card.id ? 1 : 0.3}
-        className="transition-opacity duration-300 ease-in-out"
-      />
-    ))}
-  </svg>
-</div>
+      <svg
+        width="100%"
+        height="100%"
+        className="overflow-visible"
+        style={{ transform: "translateX(0)" }}
+      >
+        <defs>
+          <linearGradient id="default-line-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#8101f8ff" />
+            <stop offset="100%" stopColor="#0062ffff" />
+          </linearGradient>
+        </defs>
+        {cardData.map(card => (
+          <path
+            key={`path-${card.id}`}
+            d={pathD[`path${card.id}`]}
+            stroke={hoveredCard === card.id ? card.color : 'url(#default-line-gradient)'}
+            strokeWidth="2"
+            fill="none"
+            opacity={hoveredCard === null || hoveredCard === card.id ? 1 : 0.3}
+            className="transition-opacity duration-300 ease-in-out"
+          />
+        ))}
+      </svg>
+    </div>
+    )}
   </div>
 
+  {/* SECTION 3 */}
   {/* ==================================================================== */}
-  {/* SECTION 3: FINAL CALL TO ACTION                                    */}
-  {/* ==================================================================== */}
-  <div className="relative text-center pt-40 z-10">
+  <div className="relative text-center pt-20 md:pt-40 z-10">
     <div className="p-8 md:p-12 flex flex-col items-center text-center">
       <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight">
         Ready to Transform <br />

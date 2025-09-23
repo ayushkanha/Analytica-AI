@@ -10,7 +10,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 from supabase import create_client, Client
-
+import numpy as np
 
 
 url: str = os.getenv("SUPABASE_URL")
@@ -27,9 +27,8 @@ def analyze(df, query):
         "columns": df.shape[1],
         "missing_values": df.isnull().sum().to_dict(),
         "dtypes": df.dtypes.astype(str).to_dict(),
-        "sample": df.head(5).to_dict(orient="records")
+        "sample": df.head(5).replace({np.nan: None}).to_dict(orient="records") # <-- CHANGE HERE
     }
-
     # Step 1: Ask LLM to generate a pandas query
     query_prompt = PromptTemplate(
         input_variables=["query", "columns", "summary"],
@@ -62,7 +61,10 @@ def analyze(df, query):
     local_env = {"pd": pd, "df": df}
     exec(query_code, local_env)
     result_df = local_env.get("result")
-
+    if hasattr(result_df, "to_dict"):
+        result_for_llm = result_df.replace({np.nan: None}).to_dict(orient="records") # <-- CHANGE HERE
+    else:
+        result_for_llm = str(result_df)
     # Step 3: Ask LLM to summarize the result
     text_prompt = PromptTemplate(
         input_variables=["query", "result"],
@@ -78,6 +80,6 @@ def analyze(df, query):
     chain_text = text_prompt | llm
     answer = chain_text.invoke({
         "query": query,
-        "result": result_df.to_dict(orient="records") if hasattr(result_df, "to_dict") else str(result_df)
+        "result": result_for_llm
     }).content.strip()
     return answer

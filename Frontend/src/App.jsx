@@ -20,7 +20,7 @@ function App() {
   const { user, isSignedIn } = useUser();
 
   useEffect(() => {
-    fetch(import.meta.env.VITE_API_URL)
+    fetch(`${import.meta.env.VITE_API_URL}/s`, { method: 'POST' })
       .then(response => {
         if (response.ok) {
           console.log('Backend wakeup call successful');
@@ -68,7 +68,7 @@ function App() {
     switch (activePage) {
       case 'home':
         return <HomePage setActivePage={handleNavClick} />;
-      case 'contact': // Add a case for the contact page
+      case 'contact': 
         return <ContactPage />;
       case 'cleaning':
         return <CleaningPage setActivePage={setActivePage} setCleanedData={setCleanedData} c_id={c_id} setFileName={setFileName} user_id={user.id}/>;
@@ -95,7 +95,9 @@ function App() {
     <div className="App dark">
       {activePage !== 'analysis' && activePage !== 'dashboard' && <Navbar activePage={activePage} setActivePage={handleNavClick} />}
       {renderPage()}
+      
     </div>
+    
   );
 }
 

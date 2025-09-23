@@ -9,14 +9,14 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 from supabase import create_client, Client
-
+import numpy as np
 url: str = os.getenv("SUPABASE_URL")
 key: str = os.getenv("SUPABASE_KEY")
 
 # Create the Supabase client
 supabase: Client = create_client(url, key)
 
-def visualize(df,query):
+def visualize(df,query, error_feedback=None):
     google_api_key = os.getenv("google_api_key")
     llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=google_api_key)
     summary = {
@@ -24,19 +24,23 @@ def visualize(df,query):
         "columns": df.shape[1],
         "missing_values": df.isnull().sum().to_dict(),
         "dtypes": df.dtypes.astype(str).to_dict(),
-        "sample": df.head(5).to_dict(orient="records")
+        "sample": df.head(5).replace({np.nan: None}).to_dict(orient="records") 
     }
 
     print("DataFrame Summary:", summary)
     prompt = PromptTemplate(
-    input_variables=["query", "columns", "summary"],
+    input_variables=["query", "columns", "summary", "error_section"],
     template="""
     You are a data visualization assistant.
 
     The dataset has these columns: {columns}.
     This is a summary of the dataframe: {summary}.
-    The user request is: {query}
+            
+    {error_section} 
 
+
+    The user request is: {query}
+    
     Write Python code that generates a Plotly Express (px) visualization.
 
     ### Strict requirements:
@@ -48,15 +52,19 @@ def visualize(df,query):
 
     2. **Code structure**
     - Always import `plotly.express as px` at the top.
-    - Create a Plotly Express figure and assign it to a variable named `fig`.
+    - Create a Plotly Express figure and assign it to a variable named `fig`.   
     - Apply a **dark theme** using `fig.update_layout(template="plotly_dark")`.
-    - Apply a **transparent background** using:
+    - Apply a **fully transparent background** using:
         fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
-    - Use a **vivid color sequence** such as `color_discrete_sequence=px.colors.qualitative.Vivid` when applicable.
+    - **Hide all grid lines** to create a cleaner look using:
+        fig.update_xaxes(showgrid=False)
+        fig.update_yaxes(showgrid=False)
+    - **Remove extra margins** around the plot for a tighter fit in the UI using:
+        fig.update_layout(margin=dict(l=0, r=0, t=40, b=0))
+    - Use a vivid color sequence such as `color_discrete_sequence=px.colors.qualitative.Plotly` when applicable.
     - Do not call `fig.show()` or any display-related functions.
     - Do not include explanations, comments, or natural language in the output. Only output valid Python code.
     - Ensure the code is syntactically correct and executable.
-
     3. **Visualization rules**
     - Choose an appropriate Plotly Express function (`px.scatter`, `px.bar`, `px.histogram`, `px.line`, etc.) based on the user’s request.
     - Ensure all x-axis, y-axis, color, and facet arguments reference valid columns in `df`.
@@ -83,15 +91,23 @@ def visualize(df,query):
     """
 )
 
-
-
-
-
     chain = prompt | llm
+    error_section_content = ""
+    if error_feedback:
+            error_section_content = f"""### CORRECTION REQUEST
+                                The Python code you generated in the last attempt failed with the following error:
+                                ---
+                                {error_feedback}
+                                ---
+                                Please analyze the error and provide a corrected version of the Python code. Do not repeat the mistake.
+                                """
+
+    
     result = chain.invoke({
         "query": query,
         "columns": list(df.columns),
-        "summary": summary
+        "summary": summary,
+        "error_section": error_section_content
     })
 
     code = result.content

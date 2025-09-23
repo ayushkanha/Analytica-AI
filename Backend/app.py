@@ -14,6 +14,7 @@ import tempfile
 from cleaning import agent_cleaning
 import plotly.graph_objects as go
 from dotenv import load_dotenv
+import numpy as np 
 
 load_dotenv()
 
@@ -74,6 +75,9 @@ class ChatName(BaseModel):
 class GraphSaveRequest(BaseModel):
     c_id: str
     graph_json: Dict[str, Any]
+@app.post("/s")
+async def start():
+    return {"message": "API is running"}
 
 @app.post("/chat")
 async def create_chat(chat_name: ChatName):
@@ -141,7 +145,7 @@ async def process_data(content: ProcessRequest):
                 
                 ai_instruction = content.dictionary.get('aiInstruction', '')
                 cleaned_df = cleaning.agent_cleaning(temp_path, instruction=ai_instruction)
-                
+                cleaned_df = cleaned_df.replace({np.nan: None})
                 cleaned_data = cleaned_df.to_dict('records')
                 
                 os.unlink(temp_path)
@@ -292,16 +296,35 @@ async def generate_graph(request: TextRequest):
         
         response_data = None
         if is_graph == "yes":
-            graph_code = graphgen.visualize(df, query)
-            
-            exec_globals = {'pd': pd, 'df': df, 'go': None, 'px': None, 'fig': None}
-            exec(graph_code, exec_globals)
-            fig = exec_globals.get('fig')
+            fig = None
+            error_feedback = None
+            max_retries = 3
+
+            for attempt in range(max_retries):
+                try:
+                    print(f"Graph generation attempt {attempt + 1}")
+                    # Pass the error feedback to the visualize function
+                    graph_code = graphgen.visualize(df, query, error_feedback=error_feedback)
+                    
+                    exec_globals = {'pd': pd, 'df': df, 'go': None, 'px': None, 'fig': None}
+                    exec(graph_code, exec_globals)
+                    fig = exec_globals.get('fig')
+                    
+                    if fig:
+                        print("Graph generated successfully.")
+                        break 
+                    else:
+                        raise ValueError("Generated code did not produce a 'fig' object.")
+
+                except Exception as e:
+                    print(f"Attempt {attempt + 1} failed: {e}")
+                    error_feedback = str(e)
+                    if attempt == max_retries - 1:
+                        response_data = {"type": "text", "data": "I'm sorry, I was unable to generate a valid visualization for your request."}
             
             if fig:
                 response_data = {"type": "plot", "data": json.loads(fig.to_json())}
-            else:
-                response_data = {"type": "text", "data": "Could not generate graph."}
+            
         else:
             text_answer = texanswer.analyze(df,query)
             response_data = {"type": "text", "data": text_answer}

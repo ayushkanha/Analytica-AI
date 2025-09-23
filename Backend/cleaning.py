@@ -107,7 +107,7 @@ def agent_cleaning(file_path, instruction=None):
         "missing_counts": df.isnull().sum().to_dict(),
         "duplicates": df.duplicated().sum(),
         "dtypes": df.dtypes.astype(str).to_dict(),
-        "sample": df.head(5).to_dict(orient="records")
+        "sample": df.head(5).replace({np.nan: None}).to_dict(orient="records")
     }
     print(summary)
 
@@ -127,9 +127,7 @@ def agent_cleaning(file_path, instruction=None):
     temp_fd, temp_path = tempfile.mkstemp(suffix=".csv")
     os.close(temp_fd)
 
-    # Fix the Unicode escape issue by properly handling file paths
     safe_code = code.replace("output.csv", temp_path)
-    # Replace backslashes with forward slashes or escape them properly
     safe_code = safe_code.replace("\\", "/")
 
     safe_code = re.sub(r'["\\]([A-Z]:\[^"\\]*)["\\]', r'"\1"', safe_code)

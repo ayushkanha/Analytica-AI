@@ -191,7 +191,7 @@ const Card = React.forwardRef(({ id, title, description, icon, backgroundImageUr
 
     <div
       ref={nodeRef}
-  className="video-player-overlay w-3/4 sm:w-1/2 md:w-1/3 h-auto rounded-lg overflow-hidden shadow-lg bg-black"
+      className="video-player-overlay"
     >
       <div className="video-player-header flex justify-between items-center p-2 bg-gray-800 text-white">
         <h3 className="text-xl">Analytica.ai Demo</h3>
@@ -218,7 +218,7 @@ const Card = React.forwardRef(({ id, title, description, icon, backgroundImageUr
 )}
 
 
-      <BorderBeam
+      {/* <BorderBeam
   size={200}
   duration={6}
   delay={0}
@@ -232,7 +232,7 @@ const Card = React.forwardRef(({ id, title, description, icon, backgroundImageUr
   beamBorderRadius={45}
   pauseOnHover={false}
   speedMultiplier={1}
-/>
+/> */}
 <main
   className="relative flex items-center p-4 sm:px-6 lg:px-8"
   style={{
@@ -243,7 +243,7 @@ const Card = React.forwardRef(({ id, title, description, icon, backgroundImageUr
   }}
 >
 <SparkleParticles
-  className="absolute inset-0 z-0"
+  className="absolute inset-0 pointer-events-none z-0"
   maxParticleSize={1.5}
   minParticleSize={0.8}
   baseDensity={100}
@@ -255,10 +255,10 @@ const Card = React.forwardRef(({ id, title, description, icon, backgroundImageUr
   minParticleOpacity={0.2}
   particleColor="#00ffcc"
   enableParallax={true}
-  enableHoverGrab={false}
+  enableHoverGrab={true}
   backgroundColor="transparent"
-  zIndexLevel={-1}
-  clickEffect={true}
+  zIndexLevel={-8}
+  clickEffect={false}
   hoverMode="repulse"
   particleCount={6}
   particleShape="star"

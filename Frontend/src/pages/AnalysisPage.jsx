@@ -9,7 +9,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-
 const AnalysisPage = ({ cleanedData, c_id, setC_id, setActivePage, fileName }) => {
   const { user,imageUrl } = useUser();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -360,6 +359,7 @@ const AnalysisPage = ({ cleanedData, c_id, setC_id, setActivePage, fileName }) =
           </>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
+           
             <h2 className="text-4xl font-semibold text-gray-500 mb-8">What's on the agenda today?</h2>
             <div className="relative w-full max-w-2xl">
               <Plus className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />

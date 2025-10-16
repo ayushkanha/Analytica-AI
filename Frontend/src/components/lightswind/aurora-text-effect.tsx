@@ -89,7 +89,7 @@ export function AuroraTextEffect({
     <div
       className={cn(
         // Updated to support light and dark modes
-        "bg-white dark:bg-black flex items-center justify-center overflow-hidden",
+        " flex items-center justify-center overflow-hidden",
         className
       )}
     >
@@ -98,7 +98,7 @@ export function AuroraTextEffect({
         <h2
           className={cn(
             // Added theme-aware text color for visibility
-            "font-extrabold tracking-tight relative overflow-hidden text-black dark:text-white",
+            "font-extrabold tracking-tight relative overflow-hidden text-black dark:text-gray-500",
             textClassName
           )}
           style={{ fontSize }}

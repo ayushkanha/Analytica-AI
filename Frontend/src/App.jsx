@@ -9,8 +9,7 @@ import ReportPage from './pages/ReportPage';
 import Dashboard from './pages/Dashboard';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
-import { useUser, SignIn } from "@clerk/clerk-react"; // or @clerk/nextjs
-
+import { useUser, SignIn } from "@clerk/clerk-react"; 
 function App() {
   
   const [activePage, setActivePage] = useState('home');
@@ -60,6 +59,7 @@ function App() {
         setActivePage(page);
       }
     } else {
+      
       alert("Whoa there! Looks like you're trying to get to the good stuff. You'll need to log in first to unlock the magic.");
     }
   };

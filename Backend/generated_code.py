@@ -3,43 +3,31 @@ import pandas as pd
 import numpy as np
 
 # Load the dataset
-df = pd.read_csv(r"C:\Users\ayush\AppData\Local\Temp\tmpgy4uwlnw.csv")
+df = pd.read_csv(r"C:\Users\ayush\AppData\Local\Temp\tmpbaj5k83g.csv")
 
-# 1. Handle Missing Values: 'Postal Code' has 11 missing values.  We'll fill with the mode.
-postal_code_mode = df['Postal Code'].mode()[0]
-df['Postal Code'] = df['Postal Code'].fillna(postal_code_mode)
+# 1. Handle Missing Values: Impute missing 'Postal Code' with the mean.
+df['Postal Code'] = df['Postal Code'].fillna(df['Postal Code'].mean())
 
-
-# 2. Data Type Conversion: 'Order Date' and 'Ship Date' are objects; convert to datetime.
+# 2. Data Type Conversion: Convert 'Order Date' and 'Ship Date' to datetime objects.
 df['Order Date'] = pd.to_datetime(df['Order Date'], format='%m/%d/%Y', errors='coerce')
-df['Ship Date'] = pd.to_datetime(df['Ship Date'], format='%d/%m/%Y', errors='coerce') #Note different format
+df['Ship Date'] = pd.to_datetime(df['Ship Date'], format='%d/%m/%Y', errors='coerce')
 
 
-# 3. Outlier Detection and Handling (example - Sales):  We could explore more sophisticated methods but a simple IQR approach is shown here.  This section is commented out as it may remove legitimate data.  Uncomment if desired.
-
-# Q1 = df['Sales'].quantile(0.25)
-# Q3 = df['Sales'].quantile(0.75)
-# IQR = Q3 - Q1
-# lower_bound = Q1 - 1.5 * IQR
-# upper_bound = Q3 + 1.5 * IQR
-# df = df[~((df['Sales'] < lower_bound) | (df['Sales'] > upper_bound))]
+# 3. Outlier Detection and Handling (Example: Sales):  This part needs more domain knowledge to determine appropriate thresholds.  Here, we'll just cap extremely high values.
+#  A more sophisticated approach might involve using IQR or other statistical methods.
+df['Sales'] = np.clip(df['Sales'], 0, df['Sales'].quantile(0.99)) #Cap values at the 99th percentile
 
 
-# 4. Check for and handle any remaining inconsistencies (e.g., unexpected values in categorical columns) -  This step would require domain knowledge of the data and is omitted here for brevity.
+# 4. Check for and handle any remaining inconsistencies (e.g., unexpected values in categorical columns).  This step is highly dependent on the data and requires careful examination.
+#  For this example, we assume no other inconsistencies are present.
 
-
-# 5. Duplicate Check (already reported as 0, but double-checking)
-duplicates = df[df.duplicated(keep=False)]
-if not duplicates.empty:
-    print("Warning: Duplicates found. Consider removing or investigating.")
-    #df.drop_duplicates(inplace=True) #Uncomment to remove duplicates if needed.
 
 
 # Save the cleaned dataset
 df.to_csv("output.csv", index=False)
 
 # Print summary statistics after cleaning
-print("Dataset Summary after Cleaning:")
+print("Dataset Summary After Cleaning:")
 print("Rows:", df.shape[0])
 print("Columns:", df.shape[1])
 print("Missing Counts:\n", df.isnull().sum())

@@ -1,19 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Plot from 'react-plotly.js';
-
-
 import { useUser, SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/clerk-react';
-import { Send, Bot, User, Database, Plus, Menu, X, MoreVertical, Save, LayoutDashboard, Type, Image as ImageIcon } from 'lucide-react';
-
-// Import backgrounds
+import { Send, Bot, User, Database, Plus, Menu, X, MoreVertical, Save, LayoutDashboard, Type, Image as ImageIcon, RefreshCw } from 'lucide-react';
 import Grad1 from "/Backgrounds/Grad 1.jpg";
 import Grad2 from "/Backgrounds/Grad 2.jpg";
 import Grad3 from "/Backgrounds/Grad 3.jpg";
 import Grad4 from "/Backgrounds/Grad 4.jpg";
 
-// --------------------------------------------------------------------
 
-// --- DraggableGraphItem Component (in the sidebar) ---
 const DraggableGraphItem = ({ graph }) => {
     return (
         <div
@@ -27,10 +21,15 @@ const DraggableGraphItem = ({ graph }) => {
     );
 };
 
-// --- DashboardWidget Component (the resizable/draggable graph on the grid) ---
 const DashboardWidget = ({ widget, onUpdate, onDelete }) => {
     const interactRef = useRef(null);
-    const { graph, position, size, instanceId } = widget;
+    const { graph, position, size, instanceId, style = {} } = widget;
+    const [isStyleMenuOpen, setIsStyleMenuOpen] = useState(false);
+    const [showThreeDotIcon, setShowThreeDotIcon] = useState(false);
+
+    const handleStyleChange = (newStyle) => {
+        onUpdate(instanceId, { style: { ...style, ...newStyle } });
+    };
 
     useEffect(() => {
         const element = interactRef.current;
@@ -93,35 +92,87 @@ const DashboardWidget = ({ widget, onUpdate, onDelete }) => {
 
     }, [instanceId, onUpdate, widget.position]);
 
+    const {
+        backgroundColor = 'rgba(23, 26, 30, 0.75)',
+        backgroundOpacity = 0.75,
+        borderColor = 'rgba(75, 85, 99, 0.5)',
+    } = style;
+
+    const customBgIsTransparent = backgroundOpacity < 0.9;
+
+    const handleBackgroundColorChange = (e) => {
+        const newColor = e.target.value;
+        const newRgba = `${newColor}${Math.round(backgroundOpacity * 255).toString(16).padStart(2, '0')}`;
+        handleStyleChange({ backgroundColor: newRgba });
+    };
+
+    const handleBackgroundOpacityChange = (e) => {
+        const newOpacity = parseFloat(e.target.value);
+        const currentColor = backgroundColor.slice(0, 7) || '#171a1e';
+        const newRgba = `${currentColor}${Math.round(newOpacity * 255).toString(16).padStart(2, '0')}`;
+        handleStyleChange({ backgroundOpacity: newOpacity, backgroundColor: newRgba });
+    };
+    
+    const setNoColor = () => {
+        handleStyleChange({ backgroundColor: 'transparent', backgroundOpacity: 0 });
+    };
+
 
     return (
         <div
-    ref={interactRef}
-className="resize-drag bg-white/20 backdrop-blur-lg flex flex-col absolute rounded-lg shadow-lg group border border-white/20"    style={{
-        width: `${size.width}px`,
-        height: `${size.height}px`,
-        transform: `translate(${position.x}px, ${position.y}px)`
-    }}
->
-    <div className="h-6 flex items-center justify-between px-2 cursor-move text-gray-400">
-        <span className="font-bold truncate">{graph.name}</span>
-        <button
-            onClick={() => onDelete(instanceId)}
-            className="delete-btn hidden group-hover:block text-gray-500 hover:text-red-500 transition-colors"
+            ref={interactRef}
+            className={`resize-drag flex flex-col absolute rounded-lg shadow-lg group border ${customBgIsTransparent ? 'backdrop-blur-lg' : ''}`}
+            style={{
+                width: `${size.width}px`,
+                height: `${size.height}px`,
+                transform: `translate(${position.x}px, ${position.y}px)`,
+                backgroundColor,
+                borderColor,
+            }}
+            onMouseEnter={() => setShowThreeDotIcon(true)}
+            onMouseLeave={() => { if (!isStyleMenuOpen) setShowThreeDotIcon(false); }}
         >
-            <svg xmlns="http://www.w3.org/2000/svg"
-                width="18" height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-        </button>
-    </div>
+            <div className="h-8 flex items-center justify-between px-2 cursor-move text-gray-400 border-b" style={{ borderColor }}>
+                <span className="font-bold truncate text-center flex-1">{graph.name}</span>
+                <div className="relative flex items-center">
+                    {(showThreeDotIcon || isStyleMenuOpen) && (
+                        <button onClick={() => setIsStyleMenuOpen(!isStyleMenuOpen)} className="p-1 hover:bg-white/10 rounded">
+                            <MoreVertical size={18} />
+                        </button>
+                    )}
+                    {isStyleMenuOpen && (
+                        <div className="absolute top-full right-0 mt-2 w-64 bg-gray-800/90 backdrop-blur-xl p-4 rounded-lg shadow-2xl z-20 border border-white/10" onClick={(e) => e.stopPropagation()}>
+                            <div className="grid grid-cols-1 gap-y-4">
+                                <div>
+                                    <label className="text-white text-sm font-medium block mb-2">Background</label>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="color"
+                                            title="Change background color"
+                                            value={backgroundColor.slice(0, 7)}
+                                            onChange={handleBackgroundColorChange}
+                                            className="w-1/3 h-9 p-1 bg-gray-700 border-gray-600 rounded cursor-pointer"
+                                        />
+                                        <input
+                                            type="range" min="0" max="1" step="0.05"
+                                            title="Change background opacity"
+                                            value={backgroundOpacity}
+                                            onChange={handleBackgroundOpacityChange}
+                                            className="w-2/3"
+                                        />
+                                    </div>
+                                     <button onClick={setNoColor} className="w-full mt-2 bg-gray-700 hover:bg-gray-600 text-white text-sm py-1 rounded">
+                                        No Color
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    <button onClick={() => onDelete(instanceId)} className="delete-btn hidden group-hover:block text-gray-500 hover:text-red-500 transition-colors p-1 rounded">
+                        <X size={18} />
+                    </button>
+                </div>
+            </div>
 
     <div className="chart-container flex-2 w-full h-full">
         <Plot
@@ -157,8 +208,8 @@ const TextBoxWidget = ({ widget, onUpdate, onDelete }) => {
         onUpdate(widget.instanceId, { content: e.target.value });
     };
 
-    const handleStyleChange = (style) => {
-        onUpdate(widget.instanceId, { style: { ...widget.style, ...style } });
+    const handleStyleChange = (newStyle) => {
+        onUpdate(widget.instanceId, { style: { ...widget.style, ...newStyle } });
     };
 
     useEffect(() => {
@@ -218,68 +269,146 @@ const TextBoxWidget = ({ widget, onUpdate, onDelete }) => {
         };
     }, [widget.instanceId, onUpdate, widget.position]);
 
+    const { style = {} } = widget;
+    const {
+        color = '#ffffff',
+        fontSize = '16px',
+        fontFamily = 'sans-serif',
+        textAlign = 'left',
+        backgroundColor = 'rgba(31, 41, 55, 0.75)',
+        backgroundOpacity = 0.75,
+        borderColor = 'rgba(75, 85, 99, 0.5)',
+    } = style;
+
+    const customBgIsTransparent = backgroundOpacity < 0.9;
+
+    const handleBackgroundColorChange = (e) => {
+        const newColor = e.target.value;
+        const newRgba = `${newColor}${Math.round(backgroundOpacity * 255).toString(16).padStart(2, '0')}`;
+        handleStyleChange({ backgroundColor: newRgba });
+    };
+
+    const handleBackgroundOpacityChange = (e) => {
+        const newOpacity = parseFloat(e.target.value);
+        const currentColor = backgroundColor.slice(0, 7);
+        const newRgba = `${currentColor}${Math.round(newOpacity * 255).toString(16).padStart(2, '0')}`;
+        handleStyleChange({ backgroundOpacity: newOpacity, backgroundColor: newRgba });
+    };
+
+
     return (
         <div
             ref={interactRef}
-            className="resize-drag bg-white/20 backdrop-blur-lg flex flex-col absolute rounded-lg shadow-lg group border border-white/20"
+            className={`resize-drag flex flex-col absolute rounded-lg shadow-lg group border ${customBgIsTransparent ? 'backdrop-blur-lg' : ''}`}
             style={{
                 width: `${widget.size.width}px`,
                 height: `${widget.size.height}px`,
                 transform: `translate(${widget.position.x}px, ${widget.position.y}px)`,
-                ...widget.style
+                color,
+                backgroundColor,
+                borderColor,
             }}
             onMouseEnter={() => setShowThreeDotIcon(true)}
-            onMouseLeave={() => setShowThreeDotIcon(false)}
+            onMouseLeave={() => {
+                if (!isStyleMenuOpen) {
+                    setShowThreeDotIcon(false)
+                }
+            }}
         >
-            <div className="h-6 flex items-center justify-between px-2 cursor-move text-gray-400">
-                <span className="font-bold truncate"></span>
+            <div className="h-8 flex items-center justify-between px-2 cursor-move text-gray-400 border-b" style={{ borderColor }}>
+                <span className="font-bold truncate text-sm"></span>
                 <div className="relative flex items-center">
-                    {showThreeDotIcon && (
-                         <button onClick={() => setIsStyleMenuOpen(!isStyleMenuOpen)} className="p-1">
+                    {(showThreeDotIcon || isStyleMenuOpen) && (
+                         <button onClick={() => setIsStyleMenuOpen(!isStyleMenuOpen)} className="p-1 hover:bg-white/10 rounded">
                             <MoreVertical size={18} />
                         </button>
                     )}
                     {isStyleMenuOpen && (
-                        <div className="absolute top-8 right-0 flex items-center space-x-2 bg-gray-800 p-1 rounded shadow-lg z-10">
-                            <input
-                                type="color"
-                                title="Change text color"
-                                defaultValue={widget.style?.color || '#ffffff'}
-                                onChange={(e) => handleStyleChange({ color: e.target.value })}
-                                className="w-6 h-6 p-0 border-none rounded cursor-pointer"
-                            />
-                            <input
-                                type="number"
-                                title="Change font size"
-                                defaultValue={parseInt(widget.style?.fontSize) || 16}
-                                onChange={(e) => handleStyleChange({ fontSize: `${e.target.value}px` })}
-                                className="w-12 bg-gray-700 text-white rounded border border-gray-600 text-center"
-                            />
-                             <select
-                                title="Change font family"
-                                defaultValue={widget.style?.fontFamily || 'sans-serif'}
-                                onChange={(e) => handleStyleChange({ fontFamily: e.target.value })}
-                                className="bg-gray-700 text-white rounded border border-gray-600 text-center"
-                            >
-                                <option value="sans-serif">Sans-serif</option>
-                                <option value="serif">Serif</option>
-                                <option value="monospace">Monospace</option>
-                                <option value="Arial">Arial</option>
-                                <option value="Verdana">Verdana</option>
-                                <option value="Courier New">Courier New</option>
-                            </select>
+                        <div className="absolute top-full right-0 mt-2 w-64 bg-gray-800/90 backdrop-blur-xl p-4 rounded-lg shadow-2xl z-20 border border-white/10" onClick={(e) => e.stopPropagation()}>
+                            <div className="grid grid-cols-1 gap-y-4">
+                                <div>
+                                    <label className="text-white text-sm font-medium block mb-2">Text Color</label>
+                                    <input
+                                        type="color"
+                                        title="Change text color"
+                                        value={color}
+                                        onChange={(e) => handleStyleChange({ color: e.target.value })}
+                                        className="w-full h-9 p-1 bg-gray-700 border-gray-600 rounded cursor-pointer"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="text-white text-sm font-medium block mb-2">Font Size</label>
+                                    <input
+                                        type="number"
+                                        title="Change font size"
+                                        value={parseInt(fontSize)}
+                                        onChange={(e) => handleStyleChange({ fontSize: `${e.target.value}px` })}
+                                        className="w-full bg-gray-700 text-white rounded border border-gray-600 text-center py-1"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="text-white text-sm font-medium block mb-2">Font Family</label>
+                                    <select
+                                        title="Change font family"
+                                        value={fontFamily}
+                                        onChange={(e) => handleStyleChange({ fontFamily: e.target.value })}
+                                        className="w-full bg-gray-700 text-white rounded border border-gray-600 py-2"
+                                    >
+                                        <option value="sans-serif">Sans-serif</option>
+                                        <option value="serif">Serif</option>
+                                        <option value="monospace">Monospace</option>
+                                        <option value="Arial">Arial</option>
+                                        <option value="Verdana">Verdana</option>
+                                        <option value="Courier New">Courier New</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="text-white text-sm font-medium block mb-2">Background</label>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="color"
+                                            title="Change background color"
+                                            value={backgroundColor.slice(0, 7)}
+                                            onChange={handleBackgroundColorChange}
+                                            className="w-1/3 h-9 p-1 bg-gray-700 border-gray-600 rounded cursor-pointer"
+                                        />
+                                        <input
+                                            type="range" min="0" max="1" step="0.05"
+                                            title="Change background opacity"
+                                            value={backgroundOpacity}
+                                            onChange={handleBackgroundOpacityChange}
+                                            className="w-2/3"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="text-white text-sm font-medium block mb-2">Text Align</label>
+                                    <div className="grid grid-cols-4 gap-1">
+                                        {['left', 'center', 'right', 'justify'].map(align => (
+                                            <button key={align} onClick={() => handleStyleChange({ textAlign: align })} className={`p-2 rounded text-xs uppercase font-bold ${textAlign === align ? 'bg-indigo-600' : 'bg-gray-700'} hover:bg-indigo-500 transition-colors`}>
+                                                {align}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     )}
-                    <button onClick={() => onDelete(widget.instanceId)} className="delete-btn hidden group-hover:block text-gray-500 hover:text-red-500 transition-colors">
+                    <button onClick={() => onDelete(widget.instanceId)} className="delete-btn hidden group-hover:block text-gray-500 hover:text-red-500 transition-colors p-1 rounded">
                         <X size={18} />
                     </button>
                 </div>
             </div>
             <div
-                className="p-2 w-full h-full overflow-auto"
+                className="p-4 w-full h-full overflow-auto"
                 style={{
-                    color: widget.style?.color || '#ffffff',
-                    fontFamily: widget.style?.fontFamily || 'sans-serif'
+                    fontSize,
+                    fontFamily,
+                    textAlign,
                 }}
                 onDoubleClick={() => setIsEditing(true)}
             >
@@ -291,8 +420,10 @@ const TextBoxWidget = ({ widget, onUpdate, onDelete }) => {
                         autoFocus
                         className="w-full h-full bg-transparent border-none focus:outline-none resize-none"
                         style={{
-                            color: widget.style?.color || '#ffffff',
-                            fontFamily: widget.style?.fontFamily || 'sans-serif'
+                            color: 'inherit',
+                            fontFamily: 'inherit',
+                            fontSize: 'inherit',
+                            textAlign: 'inherit',
                         }}
                     />
                 ) : (
@@ -302,6 +433,7 @@ const TextBoxWidget = ({ widget, onUpdate, onDelete }) => {
         </div>
     );
 };
+
 
 // --- LogoWidget Component ---
 const LogoWidget = ({ widget, onUpdate, onDelete }) => {
@@ -430,51 +562,56 @@ const Dashboard = ({ c_id, setActivePage }) => {
         };
     }, []);
 
-    // --- LOCALSTORAGE & API DATA LOGIC ---
-    useEffect(() => {
-        const fetchGraphs = async () => {
-            if (userId) {
-                // 1. Load layout from localStorage first
-                try {
-                    const savedLayout = localStorage.getItem(`dashboard-layout-${userId}`);
-                    if (savedLayout) {
-                        setDashboardItems(JSON.parse(savedLayout));
-                    }
-                } catch (error) {
-                    console.error("Error loading dashboard from localStorage:", error);
-                }
+    // --- API DATA LOGIC ---
+    const fetchGraphs = useCallback(async () => {
+        if (!userId) return;
 
-                // 2. Fetch available graphs from API
-                try {
-                    const response = await fetch(`${import.meta.env.VITE_API_URL}/graphs/${userId}`);
-                    if (response.ok) {
-                        const data = await response.json();
-                        const parsedData = data.map(graph => {
-                            if (graph.graph_data && typeof graph.graph_data === "string") {
-                                try {
-                                    return { ...graph, graph_data: JSON.parse(graph.graph_data) };
-                                } catch (error) {
-                                    console.error(`Failed to parse graph_data for graph ${graph.id}:`, error);
-                                    // Return a graph with an error state if parsing fails
-                                    return { ...graph, graph_data: { data: [], layout: { title: 'Error Loading Graph' } } };
-                                }
-                            }
-                            return graph;
-                        });
-                        setStoredGraphs(parsedData);
-                    } else {
-                        console.error("Failed to fetch saved graphs");
-                        setStoredGraphs([]); // Set to empty on failure
+        setNotification('Refreshing graphs...');
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/graphs/${userId}`);
+            if (response.ok) {
+                const data = await response.json();
+                const parsedData = data.map(graph => {
+                    if (graph.graph_data && typeof graph.graph_data === "string") {
+                        try {
+                            return { ...graph, graph_data: JSON.parse(graph.graph_data) };
+                        } catch (error) {
+                            console.error(`Failed to parse graph_data for graph ${graph.id}:`, error);
+                            return { ...graph, graph_data: { data: [], layout: { title: 'Error Loading Graph' } } };
+                        }
                     }
-                } catch (error) {
-                    console.error("Error fetching graphs:", error);
-                    setStoredGraphs([]); // Set to empty on error
-                }
+                    return graph;
+                });
+                setStoredGraphs(parsedData);
+                setNotification('Graphs refreshed!');
+            } else {
+                console.error("Failed to fetch saved graphs");
+                setStoredGraphs([]);
+                setNotification('Error refreshing graphs.');
             }
-        };
-
-        fetchGraphs();
+        } catch (error) {
+            console.error("Error fetching graphs:", error);
+            setStoredGraphs([]);
+            setNotification('Error refreshing graphs.');
+        }
     }, [userId]);
+
+    // --- LOCALSTORAGE & INITIAL FETCH ---
+    useEffect(() => {
+        if (userId) {
+            // Load layout from localStorage
+            try {
+                const savedLayout = localStorage.getItem(`dashboard-layout-${userId}`);
+                if (savedLayout) {
+                    setDashboardItems(JSON.parse(savedLayout));
+                }
+            } catch (error) {
+                console.error("Error loading dashboard from localStorage:", error);
+            }
+            // Initial fetch of graphs
+            fetchGraphs();
+        }
+    }, [userId, fetchGraphs]);
 
     // --- INTERACT.JS LOGIC ---
     useEffect(() => {
@@ -530,7 +667,12 @@ const Dashboard = ({ c_id, setActivePage }) => {
                     type: 'graph',
                     graph: graphData,
                     position: { x: dropX - 200, y: dropY - 150 }, // Center on drop
-                    size: { width: 400, height: 300 }
+                    size: { width: 400, height: 300 },
+                    style: {
+                        backgroundColor: 'rgba(23, 26, 30, 0.75)', // #171a1e with opacity
+                        backgroundOpacity: 0.75,
+                        borderColor: 'rgba(75, 85, 99, 0.5)',
+                    }
                 };
                 setDashboardItems(prev => [...prev, newWidget]);
             }
@@ -566,11 +708,15 @@ const Dashboard = ({ c_id, setActivePage }) => {
             type: 'textbox',
             content: '## New Text Box\n\nEnter your text here. You can use **markdown**!',
             position: { x: 50, y: 50 },
-            size: { width: 250, height: 150 },
+            size: { width: 300, height: 200 },
             style: {
                 color: '#ffffff',
                 fontSize: '16px',
-                fontFamily: 'sans-serif'
+                fontFamily: 'sans-serif',
+                textAlign: 'left',
+                backgroundColor: 'rgba(31, 41, 55, 0.75)',
+                borderColor: 'rgba(75, 85, 99, 0.5)',
+                backgroundOpacity: 0.75,
             }
         };
         setDashboardItems(prev => [...prev, newItem]);
@@ -647,16 +793,27 @@ const Dashboard = ({ c_id, setActivePage }) => {
                     <h2 className={`text-xl font-bold text-gray-300 transition-opacity duration-300 ${sidebarCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
                         Chart Library
                     </h2>
-                    {/* Only show toggle button when expanded */}
-                    {!sidebarCollapsed && (
-                        <button
-                            onClick={() => setSidebarCollapsed(true)}
-                            className="bg-gray-700 hover:bg-gray-600 rounded-full p-2 text-gray-300 focus:outline-none"
-                            title="Collapse sidebar"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                        </button>
-                    )}
+                    <div className="flex items-center">
+                        {!sidebarCollapsed && (
+                            <button
+                                onClick={fetchGraphs}
+                                className="bg-gray-700 hover:bg-gray-600 rounded-full p-2 text-gray-300 focus:outline-none mr-2"
+                                title="Refresh graphs"
+                            >
+                                <RefreshCw size={16} />
+                            </button>
+                        )}
+                        {/* Only show toggle button when expanded */}
+                        {!sidebarCollapsed && (
+                            <button
+                                onClick={() => setSidebarCollapsed(true)}
+                                className="bg-gray-700 hover:bg-gray-600 rounded-full p-2 text-gray-300 focus:outline-none"
+                                title="Collapse sidebar"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                            </button>
+                        )}
+                    </div>
                 </div>
                 <div className={`space-y-4 transition-opacity duration-300 ${sidebarCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
                     {storedGraphs.length > 0 ? (

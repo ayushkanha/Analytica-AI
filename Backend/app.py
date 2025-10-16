@@ -205,12 +205,15 @@ async def process_data(content: ProcessRequest):
         if content.dictionary.get('removeOutliers', 0) == 1:
             print("Outlier removal selected (basic implementation)")
         
+        final_df = pd.DataFrame(cleaned_data)
+        final_df = final_df.replace({np.nan: None})
+        final_cleaned_data = final_df.to_dict('records')
         return {
             "status": "success", 
-            "message": f"Processed {len(cleaned_data)} rows",
-            "cleaned_data": cleaned_data,
+            "message": f"Processed {len(final_cleaned_data)} rows",
+            "cleaned_data": final_cleaned_data,
             "original_count": len(content.data),
-            "cleaned_count": len(cleaned_data)
+            "cleaned_count": len(final_cleaned_data)
         }
     except Exception as e:
         print(f"Error processing data: {e}")

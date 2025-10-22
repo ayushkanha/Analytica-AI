@@ -2,11 +2,11 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Plot from 'react-plotly.js';
 import { useUser, SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/clerk-react';
 import { Send, Bot, User, Database, Plus, Menu, X, MoreVertical, Save, LayoutDashboard, Type, Image as ImageIcon, RefreshCw } from 'lucide-react';
-import Grad1 from "/Backgrounds/Grad 1.jpg";
-import Grad2 from "/Backgrounds/Grad 2.jpg";
+import Grad1 from "/Backgrounds/Grad 2.jpg";
+import Grad2 from "/Backgrounds/Grad 1.jpg";
 import Grad3 from "/Backgrounds/Grad 3.jpg";
 import Grad4 from "/Backgrounds/Grad 4.jpg";
-
+import html2canvas from 'html2canvas';
 
 const DraggableGraphItem = ({ graph }) => {
     return (
@@ -180,8 +180,6 @@ const DashboardWidget = ({ widget, onUpdate, onDelete }) => {
             layout={{
                 ...graph.graph_data.layout,
                 autosize: true,
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(121, 100, 100, 0)',
                 font: { color: '#8397b0ff' },
             }}
             config={{ responsive: true, displaylogo: false, modeBarButtonsToRemove: ["zoom2d", "pan2d", "select2d", "lasso2d", "zoomIn2d", "zoomOut2d", "autoScale2d", "hoverClosestCartesian", "hoverCompareCartesian", "toggleSpikelines", "resetViews"], modeBarButtonsToKeep: ["toImage", "resetScale2d"] }}
@@ -752,7 +750,108 @@ const Dashboard = ({ c_id, setActivePage }) => {
             setNotification('Error: Could not save dashboard.');
         }
     };
+    const downloadAsPNG = () => {
+    setNotification('Generating PNG...');
 
+    const dashboardElement = dropzoneRef.current;
+    if (!dashboardElement) {
+        setNotification('Error: Dashboard element not found.');
+        return;
+    }
+
+    html2canvas(dashboardElement, {
+        useCORS: true, // Correct for external images
+        backgroundColor: '#181818',
+        onclone: (document) => {
+            const clonedElement = document.getElementById('dashboard-grid');
+            if (clonedElement) {
+                clonedElement.style.border = 'none';
+            }
+        }
+    })
+    .then((canvas) => {
+        const imageData = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = imageData;
+        link.download = 'dashboard.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setNotification('PNG download started!');
+    })
+    .catch((err) => {
+        console.error("Error generating PNG:", err);
+        setNotification('Error generating PNG.');
+    });
+    };
+    const downloadAsHTML = () => {
+        setNotification('Generating HTML...');
+        const dashboardElement = dropzoneRef.current;
+        if (!dashboardElement) {
+            setNotification('Error: Dashboard element not found.');
+            return;
+        }
+
+        // 1. Get all style and link tags from the <head>
+        const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+                            .map(el => el.outerHTML)
+                            .join('\n');
+
+        // 2. Get the dashboard's current HTML
+        const dashboardHtml = dashboardElement.outerHTML;
+
+        // 3. Create the full HTML content
+        const fullHtmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Export</title>
+    ${styles}
+    <style>
+        /* Basic body styling */
+        body { 
+            background-color: #181818; 
+            padding: 20px; 
+            font-family: sans-serif;
+        }
+        /* Override 100% height which won't work in a static file */
+        /* Use scrollHeight to ensure all content is included */
+        #${dashboardElement.id} { 
+            height: ${dashboardElement.scrollHeight}px !important; 
+            border: 2px dashed #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dashboard Export</h1>
+    ${dashboardHtml}
+</body>
+</html>
+        `;
+
+        // 4. Create a Blob and trigger download
+        try {
+            const blob = new Blob([fullHtmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'dashboard.html';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            URL.revokeObjectURL(url);
+            setNotification('HTML download started!');
+        } catch (err) {
+            console.error("Error generating HTML:", err);
+            setNotification('Error generating HTML.');
+        }
+    };
+    
     const clearDashboard = () => {
         if (window.confirm("Are you sure you want to clear the dashboard? This cannot be undone.")) {
             if (!userId) return;
@@ -906,6 +1005,16 @@ const Dashboard = ({ c_id, setActivePage }) => {
                         <button onClick={saveDashboardLayout} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">
                             Save Layout
                         </button>
+                        <button onClick={downloadAsPNG} className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-3 rounded-lg transition-colors flex items-center space-x-2">
+                                <ImageIcon size={18} />
+                                <span className='hidden lg:inline'>PNG</span>
+                            </button>
+
+                            {/* New HTML Download Button */}
+                            <button onClick={downloadAsHTML} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-lg transition-colors flex items-center space-x-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                                <span className='hidden lg:inline'>HTML</span>
+                            </button>
                         <button onClick={clearDashboard} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">
                             Clear Dashboard
                         </button>

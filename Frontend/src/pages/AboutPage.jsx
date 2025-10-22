@@ -1,10 +1,11 @@
 import React from 'react';
 import { Users, Target, Eye } from 'lucide-react';
 import Grad1 from "/Backgrounds/Grad 1.jpg";
+import AyushImage from '../assets/Ayush.jpeg';
 
 const AboutPage = () => {
     const teamMembers = [
-        { name: 'Ayush kumar sahu', role: 'Founder, Lead Developer, UI/UX Designer & Backend Developer', imageUrl: '/path-to-your-image.jpg' },
+        { name: 'Ayush kumar sahu', role: 'Founder, Lead Developer, UI/UX Designer & Backend Developer', imageUrl: AyushImage },
 
     ];
 

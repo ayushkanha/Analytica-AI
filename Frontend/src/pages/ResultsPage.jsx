@@ -38,16 +38,16 @@ const ResultsPage = ({ cleanedData, setActivePage, onBack }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 px-6 py-8">
+    <div className="min-h-screen bg-[#0a0a0a] text-gray-100 px-6 py-8">
       <div className="max-w-4xl mx-auto mt-20">
         {/* Header */}
         <div className="mb-8">
           <button
             onClick={onBack}
-            className="flex items-center space-x-2 text-gray-400 hover:text-teal-400 transition-colors duration-200 mb-4"
+            className="flex items-center space-x-2 text-sm text-gray-400 hover:text-gray-100 transition-colors duration-200 mb-4"
           >
-            <ArrowLeft className="w-5 h-5" />
-            <span>Back to Cleaning</span>
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back</span>
           </button>
           
           <div className="flex items-center space-x-3 mb-4">
@@ -62,16 +62,16 @@ const ResultsPage = ({ cleanedData, setActivePage, onBack }) => {
         </div>
 
         {/* Results Summary */}
-        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700 mb-8">
+        <div className="bg-[#111111] rounded-lg p-6 border border-gray-800 mb-8">
           <h2 className="text-xl font-semibold text-gray-200 mb-4">Processing Summary</h2>
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-gray-700 rounded-lg p-4">
+            <div className="bg-gray-900 rounded-lg p-4 border border-gray-800">
               <h3 className="text-gray-300 font-medium mb-2">Original Data</h3>
               <p className="text-2xl font-bold text-teal-400">
                 {cleanedData ? cleanedData.length : 0} rows
               </p>
             </div>
-            <div className="bg-gray-700 rounded-lg p-4">
+            <div className="bg-gray-900 rounded-lg p-4 border border-gray-800">
               <h3 className="text-gray-300 font-medium mb-2">Cleaned Data</h3>
               <p className="text-2xl font-bold text-green-400">
                 {cleanedData ? cleanedData.length : 0} rows
@@ -83,7 +83,7 @@ const ResultsPage = ({ cleanedData, setActivePage, onBack }) => {
         {/* Action Buttons */}
         <div className="grid md:grid-cols-2 gap-6">
           {/* Download Option */}
-          <div className="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-teal-500 transition-colors duration-300">
+          <div className="bg-[#111111] rounded-lg p-6 border border-gray-800 hover:border-teal-500 transition-colors duration-300">
             <div className="text-center">
               <div className="bg-teal-500 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                 <Download className="w-8 h-8 text-white" />
@@ -102,7 +102,7 @@ const ResultsPage = ({ cleanedData, setActivePage, onBack }) => {
           </div>
 
           {/* Analysis Option */}
-          <div className="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-teal-500 transition-colors duration-300">
+          <div className="bg-[#111111] rounded-lg p-6 border border-gray-800 hover:border-purple-500 transition-colors duration-300">
             <div className="text-center">
               <div className="bg-purple-500 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                 <BarChart3 className="w-8 h-8 text-white" />
@@ -123,25 +123,27 @@ const ResultsPage = ({ cleanedData, setActivePage, onBack }) => {
 
         {/* Data Preview */}
         {cleanedData && cleanedData.length > 0 && (
-          <div className="mt-8 bg-gray-800 rounded-lg p-6 border border-gray-700">
-            <h3 className="text-lg font-semibold text-gray-200 mb-4">Preview of Cleaned Data</h3>
+          <div className="mt-8 bg-[#111111] rounded-lg border border-gray-800 overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-800">
+                <h3 className="text-lg font-semibold text-gray-200">Preview of Cleaned Data</h3>
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-700">
+                <thead className="bg-[#0a0a0a] border-b border-gray-800">
+                  <tr >
                     {Object.keys(cleanedData[0] || {}).map((header) => (
-                      <th key={header} className="text-left py-3 px-4 text-gray-300 font-medium">
+                      <th key={header} className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         {header}
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-gray-800">
                   {cleanedData.slice(0, 5).map((row, idx) => (
-                    <tr key={idx} className="border-b border-gray-700/50">
+                    <tr key={idx} className="hover:bg-[#0a0a0a] transition-colors">
                       {Object.keys(cleanedData[0] || {}).map((header) => (
-                        <td key={header} className="py-3 px-4 text-gray-200">
-                          {row[header] !== undefined && row[header] !== '' ? row[header] : <span className="text-gray-500">-</span>}
+                        <td key={header} className="px-6 py-4 text-gray-300">
+                          {row[header] !== undefined && row[header] !== '' ? row[header] : <span className="text-gray-500">—</span>}
                         </td>
                       ))}
                     </tr>
@@ -149,9 +151,11 @@ const ResultsPage = ({ cleanedData, setActivePage, onBack }) => {
                 </tbody>
               </table>
               {cleanedData.length > 5 && (
-                <p className="text-gray-400 text-sm mt-3 text-center">
-                  Showing first 5 rows of {cleanedData.length} total rows
-                </p>
+                <div className="px-6 py-4 border-t border-gray-800">
+                    <p className="text-gray-400 text-sm text-center">
+                        Showing first 5 rows of {cleanedData.length} total rows
+                    </p>
+                </div>
               )}
             </div>
           </div>

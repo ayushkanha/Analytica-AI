@@ -180,7 +180,7 @@ const AnalysisPage = ({ cleanedData, c_id, setC_id, setActivePage, fileName }) =
     <div className="h-screen flex" style={{ backgroundColor: '#212121' }}>
       {/* Sidebar */}
       <div className={`transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-20'} flex flex-col flex-shrink-0`} style={{ backgroundColor: '#181818', color: 'white' }}>
-        <div className="flex items-center justify-between p-4 border-b border-gray-700 py-8">
+        <div className="flex items-center justify-between p-4 border-b border-gray-700 py-5">
           {isSidebarOpen && <h2 className="text-lg font-semibold">Chat History</h2>}
           <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-1 rounded-md hover:bg-gray-700">
             {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}

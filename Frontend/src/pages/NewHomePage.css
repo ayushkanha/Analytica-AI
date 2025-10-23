@@ -7,8 +7,8 @@
 }
 /* Grid overlay */
 .grid-mask {
-  mask-image: radial-gradient(ellipse at center, black 60%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse at center, black 60%, transparent 100%);
+  mask-image: radial-gradient(ellipse at center, black 60%, transparent 20%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 60%, transparent 20%);
 }
 /* Floating animation */
 @keyframes float {

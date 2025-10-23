@@ -246,7 +246,7 @@ const HomePage = ({ setActivePage }) => {
       )}
 
       {/* Background Layers */}
-      <div className="pointer-events-none fixed inset-0 z-9">
+      <div className="pointer-events-none fixed inset-0 z-10">
         <div className="aurora absolute inset-0 opacity-40"></div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,_rgba(255,255,255,0.06)_1px,_transparent_1px)] [background-size:24px_24px] grid-mask"></div>
         <div className="absolute -top-24 -left-16 h-64 w-64 rounded-full bg-cyan-500/20 blur-3xl animate-glow"></div>

@@ -246,8 +246,12 @@ const HomePage = ({ setActivePage }) => {
       )}
 
       {/* Background Layers */}
-      <div className="pointer-events-none fixed inset-0 z-10">
-        <div className="aurora absolute inset-0 opacity-40"></div>
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <div className="aurora absolute inset-0 opacity-20"></div>
+                <div className="spline-container absolute top-0 left-0 w-full h-full -z-50 opacity-20 text-xs">
+<iframe src="https://my.spline.design/glowingplanetparticles-oNju9tQxB1nyaHSc0bBhpEAE" frameborder="0" width="100%" height="100%" id="aura-spline" class="w-full h-full"></iframe>  
+                </div>
+
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,_rgba(255,255,255,0.06)_1px,_transparent_1px)] [background-size:24px_24px] grid-mask"></div>
         <div className="absolute -top-24 -left-16 h-64 w-64 rounded-full bg-cyan-500/20 blur-3xl animate-glow"></div>
         <div className="absolute -bottom-10 -right-10 h-72 w-72 rounded-full bg-violet-500/20 blur-3xl animate-glow [animation-delay:2s]"></div>
@@ -575,7 +579,7 @@ steps:
           <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-r from-cyan-500/15 to-indigo-500/15 p-8 md:p-12">
             <div className="grid md:grid-cols-2 gap-6 items-center text-center md:text-left">
               <div>
-                <h3 className="text-2xl md:text-3xl font-semibold tracking-tight text-white">Turn questions into answers — instantly</h3>
+                <h3 className="text-2xl md:text-3xl font-semibold tracking-tight text-white">Turn questions into answers instantly</h3>
                 <p className="mt-3 text-slate-300/90">Join teams automating their analytics workflows and shipping dashboards faster.</p>
               </div>
               <div className="flex flex-col sm:flex-row md:justify-end gap-3 justify-center">

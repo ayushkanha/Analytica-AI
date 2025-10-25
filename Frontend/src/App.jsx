@@ -8,6 +8,7 @@ import AnalysisPage from './pages/AnalysisPage';
 import ReportPage from './pages/ReportPage';
 import Dashboard from './pages/Dashboard';
 import AboutPage from './pages/AboutPage';
+import SolutionPage from './pages/SolutionPage';
 import ContactPage from './pages/ContactPage';
 import { useUser, SignIn } from "@clerk/clerk-react"; 
 function App() {
@@ -52,16 +53,22 @@ function App() {
   };
 
   const handleNavClick = (page) => {
+
     if (isSignedIn) {
       if (page === 'cleaning') {
         handleNavigateToCleaning();
       } else {
         setActivePage(page);
       }
-    } else {
-      
+    } 
+    else {
+      if (page === 'home' || page === 'contact' || page === 'about' || page === 'solution') { 
+        setActivePage(page);
+      } 
+      else {
       alert("Whoa there! Looks like you're trying to get to the good stuff. You'll need to log in first to unlock the magic.");
     }
+  }
   };
 
   const renderPage = () => {
@@ -78,6 +85,8 @@ function App() {
           setActivePage={setActivePage} 
           onBack={() => setActivePage('cleaning')} 
         />;
+      case 'solution':
+        return <SolutionPage />;
       case 'analysis':
         return <AnalysisPage cleanedData={cleanedData} c_id={c_id} setC_id={setC_id} setActivePage={setActivePage} fileName={fileName} />;
       case 'reports':

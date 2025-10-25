@@ -271,13 +271,13 @@ const AnalysisPage = ({ cleanedData, c_id, setC_id, setActivePage, fileName }) =
                       <div
                         onMouseEnter={() => setHoveredPlotId(message.id)}
                         onMouseLeave={() => setHoveredPlotId(null)}
-                        className={`group relative overflow-hidden rounded-2xl p-6 font-sans shadow-2xl ${message.visualization ? 'block w-full' : 'inline-block'} bg-neutral-950 text-gray-200`}
+                        className={`group relative overflow-hidden rounded-2xl p-3 font-sans shadow-2xl ${message.visualization ? 'block w-full' : 'inline-block'} bg-neutral-950 text-gray-200`}
                       >
                         <div
-                          className="absolute -top-1/2 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-violet-500/15 blur-3xl transition-all duration-700 group-hover:bg-lime-500/19"
+                          className="absolute -top-1/2 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-violet-500/15 blur-3xl transition-all duration-700 group-hover:bg-lime-500/19 "
                         ></div>
                         {message.visualization && (hoveredPlotId === message.id || activeMenuId === message.id) && (
-                          <div className="absolute top-2 right-2 z-40">
+                          <div className="absolute top-2 right-2 ">
                             <button
                               onClick={() => setActiveMenuId(activeMenuId === message.id ? null : message.id)}
                               className="p-1 bg-gray-700 rounded-md hover:bg-gray-600"
@@ -288,7 +288,7 @@ const AnalysisPage = ({ cleanedData, c_id, setC_id, setActivePage, fileName }) =
                             </button>
 
                             {activeMenuId === message.id && (
-                              <div className="absolute top-8 right-0 z-50 bg-gray-600 rounded-md shadow-lg py-1 w-40">
+                              <div className="absolute top-8 right-0  bg-gray-600 rounded-md shadow-lg py-1 w-40">
                                 <button
                                   onClick={() => handleSaveGraph(message.visualization)}
                                   className="flex items-center space-x-2 w-full text-left px-3 py-2 text-sm text-white hover:bg-teal-600"

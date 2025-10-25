@@ -16,6 +16,7 @@ const AboutPage = () => {
                 className="py-10 text-center text-white"
                
             >
+                
                 <div className="bg-black/50 py-20">
                     <h1 className="text-5xl font-bold mt-15 mb-4">About Analytica AI</h1>
                     <p className="text-xl max-w-3xl mx-auto">

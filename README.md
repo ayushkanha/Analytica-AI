@@ -1,42 +1,51 @@
------
-
 # Analytica-AI
 
-Analytica-AI is a powerful data analysis and visualization tool that leverages artificial intelligence to help you turn your data into dialogue. Clean, analyze, and report on your data with ease, and uncover hidden insights through an intuitive, conversational interface.
+## Live Preview
 
------
+*[Link to your deployed project will go here]*
+
+> **Note:** Our backend is currently hosted on a free tier, so it may temporarily stop. If you don't see any changes after clicking buttons, don't be alarmed - just wait 30 seconds and the backend will automatically restart.
+
+Analytica-AI is an intelligent, AI-powered data analysis and visualization tool. It allows users to upload datasets, perform advanced and automated data cleaning, and then interact with their data using natural language queries to generate both textual insights and interactive visualizations.
 
 ## Features
 
-  - **Seamless Data Upload:** The application allows users to upload data in CSV or Excel formats.
-  - **AI-Powered Data Cleaning:** The system can automatically clean and preprocess your data, handling missing values, duplicates, and inconsistent formats. It uses a `ChatGoogleGenerativeAI` model to autonomously generate cleaning code based on a summary of the dataset and user instructions.
-  - **Interactive Data Analysis:** The application classifies user queries using a `ChatGroq` model to determine if a visual or text-based response is needed. It provides intelligent insights and visualizations based on natural language queries.
-  - **Dynamic Visualizations:** The system generates a variety of charts and graphs using Plotly Express with a dark theme and vivid color sequences.
-  - **Dashboard:** Users can create and save custom dashboards by dragging and dropping generated graphs onto a grid layout.
+- **Data Upload**: Supports uploading data files like CSVs.
+- **AI-Powered Cleaning**: An "AI Magic" feature that intelligently cleans data, handles missing values, and removes duplicates using AI.
+- **Manual Cleaning**: Options to manually remove duplicates, handle missing values (fill or remove), and standardize formats.
+- **Natural Language Querying**: Ask questions about your data in plain English.
+- **AI-Powered Analysis**: Uses Google's Gemini model to understand queries and provide text-based answers.
+- **Dynamic Graph Generation**: Automatically generates interactive Plotly graphs based on your queries.
+- **Persistent Chat**: Chat history is saved to a Supabase database, allowing users to review past analyses.
+- **Save Visualizations**: Users can save their favorite generated graphs for future reference.
+- **User Authentication**: Secure sign-in and user management powered by Clerk.
 
------
 
 ## Tech Stack
 
-### Frontend
+| Area | Technology |
+|------|------------|
+| Backend | Python, FastAPI, Uvicorn |
+| Frontend | React (Vite), React Router |
+| Database | Supabase (PostgreSQL) |
+| AI / LLM | Google Gemini, Groq Llama (via LangChain) |
+| Data Handling | Pandas, Numpy |
+| Visualization | Plotly (Python & JS) |
+| Styling | Tailwind CSS, shadcn/ui |
+| Authentication | Clerk |
 
-  - **React:** A JavaScript library for building user interfaces.
-  - **Vite:** A fast build tool and development server for modern web projects.
-  - **Tailwind CSS:** A utility-first CSS framework for rapid UI development.
-  - **Plotly.js:** A high-level, declarative charting library, used with `react-plotly.js` for visualizations.
-  - **@clerk/clerk-react:** For user authentication and management.
-  - **Interac.js:** For draggable and resizable dashboard widgets.
-  - **Supabase:** The backend is configured to use Supabase for database interactions.
+-----
 
-### Backend
+## Screenshots
 
-  - **Python:** A versatile programming language for backend development.
-  - **FastAPI:** A modern, high-performance web framework for building APIs with Python.
-  - **Pandas:** A powerful data manipulation and analysis library for Python.
-  - **Langchain:** A framework for developing applications powered by language models.
-  - **Google Generative AI:** Google's models are used for generating cleaning code and text-based analysis.
-  - **Groq API:** A high-performance inference engine for classifying user queries.
-  - **Supabase:** Serves as the database for storing chat history and saved graphs.
+### Home Page
+<img width="1920" alt="Home Page" src="./ss/home page.png" />
+
+### Data Cleaning Page
+<img width="1165" alt="Data Cleaning Page" src="./ss/cleaning page.png" />
+
+### Analysis Page
+<img width="894" alt="Analysis Page" src="./ss/chat bot.png" />
 
 -----
 
@@ -46,69 +55,110 @@ Follow these instructions to get a copy of the project up and running on your lo
 
 ### Prerequisites
 
-  - Node.js and npm (or pnpm/yarn) installed.
-  - Python 3.7+ and pip installed.
-  - A `.env` file with the required API keys (see `.env.example` for reference).
+- Python 3.9+
+- Node.js (v18 or newer)
+- pnpm (or npm/yarn)
+- Supabase Account (for database and storage)
+- Clerk Account (for authentication)
+- Google AI Studio API Key (for Gemini)
 
-### Installation
+### Backend Setup
 
-1.  **Clone the repository:**
+1. Navigate to the Backend Directory:
+```bash
+cd Backend
+```
 
-    ```bash
-    git clone [https://github.com/ayushkanha/analytica-ai.git](https://github.com/ayushkanha/analytica-ai.git)
-    cd analytica-ai
-    ```
+2. Create a Virtual Environment (Recommended):
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+```
 
-2.  **Set up the Frontend:**
+3. Install Dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-    ```bash
-    cd Frontend
-    npm install
-    ```
+4. Set Up Environment Variables:
+   - Create a file named `.env` in the Backend directory
+   - Copy the contents of Backend/.env.example into it
+   - Fill in the required values
 
-3.  **Set up the Backend:**
+5. Run the Server:
+```bash
+uvicorn app:app --reload
+```
 
-    ```bash
-    cd ../Backend
-    pip install -r requirements.txt
-    ```
+The backend API will be running at http://127.0.0.1:8000.
 
-### Running the Application
+### Frontend Setup
 
-1.  **Start the Backend Server:**
+1. Navigate to the Frontend Directory:
+```bash
+cd Frontend
+```
 
-    ```bash
-    cd Backend
-    uvicorn app:app --reload
-    ```
+2. Install Dependencies:
+```bash
+pnpm install
+# or
+# npm install
+```
 
-    The backend server will be running at `http://localhost:8000`.
+3. Set Up Environment Variables:
+   - Create a file named `.env` in the Frontend directory
+   - Copy the contents of Frontend/.env.example into it
+   - Fill in the required values
 
-2.  **Start the Frontend Development Server:**
+4. Run the Development Server:
+```bash
+pnpm dev
+# or
+# npm run dev
+```
 
-    ```bash
-    cd Frontend
-    npm run dev
-    ```
+The frontend application will be running at http://localhost:5173 (or another port if 5173 is in use).
 
-    The frontend development server will be running at `http://localhost:3000`.
+## Environment Variables
 
------
+You must create `.env` files for both the frontend and backend by copying the example files below.
 
-## Screenshots
+### Backend Environment Example
 
-### Home Page
-<img width="1920" height="918" alt="image" src="https://github.com/user-attachments/assets/d2c972bb-aa72-4ace-bdff-9d550d50c231" />
+File: `Backend/.env.example`
+```env
+# Get from your Supabase project settings (Project URL)
+SUPABASE_URL="YOUR_SUPABASE_PROJECT_URL"
 
-### Data Cleaning Page
+# Get from your Supabase project settings (API -> service_role Key)
+SUPABASE_KEY="YOUR_SUPABASE_SERVICE_ROLE_KEY"
 
-<img width="1165" height="907" alt="image" src="https://github.com/user-attachments/assets/a267f60f-b9cf-4c73-9ccf-0520aab744cc"/>
+# Get from Google AI Studio (https://aistudio.google.com/app/apikey)
+google_api_key="YOUR_GOOGLE_GEMINI_API_KEY"
 
-### Analysis Page
+# Get from GroqCloud (https://console.groq.com/keys)
+GROQ_API_KEY="YOUR_GROQ_API_KEY"
+```
 
-<img width="894" height="899" alt="image" src="https://github.com/user-attachments/assets/6467f940-2bd9-405b-99dd-935a6b85b004" />
+### Frontend Environment Example
 
------
+File: `Frontend/.env.example`
+```env
+# Get from your Supabase project settings (API -> Project URL)
+VITE_SUPABASE_URL="YOUR_SUPABASE_PROJECT_URL"
+
+# Get from your Supabase project settings (API -> anon Key)
+VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
+
+# Get from your Clerk project dashboard (API Keys -> Publishable key)
+VITE_CLERK_PUBLISHABLE_KEY="YOUR_CLERK_PUBLISHABLE_KEY"
+
+# The URL of your running FastAPI backend
+VITE_API_BASE_URL="http://127.0.0.1:8000"
+```
+
+
 
 ## Contributing
 

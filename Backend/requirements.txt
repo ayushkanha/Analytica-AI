@@ -7,5 +7,8 @@ python-dotenv
 supabase
 numpy
 plotly
-langchain_groq
-langchain
+langchain==0.3.27
+langchain-core==0.3.75
+langchain-google-genai==2.1.10
+langchain-groq==0.3.7
+

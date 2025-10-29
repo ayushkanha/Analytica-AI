@@ -15,7 +15,7 @@ def remove_duplicates(df: pd.DataFrame) -> pd.DataFrame:
 
 # 2. Handle Missing Values
 def handle_missing(df: pd.DataFrame) -> pd.DataFrame:
-    return df.fillna(method='ffill').fillna(method='bfill')  # simple strategy
+    return df.fillna(method='ffill').fillna(method='bfill')  
 
 # 3. Standardize Formats (dates, categorical casing, etc.)
 def standardize_formats(df: pd.DataFrame) -> pd.DataFrame:
@@ -55,7 +55,7 @@ def agent_cleaning(file_path, instruction=None):
 
 
     google_api_key = os.getenv("google_api_key")
-    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=google_api_key)
+    llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", google_api_key=google_api_key)
 
     # Prompt for autonomous cleaning
     if instruction:
@@ -100,7 +100,6 @@ def agent_cleaning(file_path, instruction=None):
 
     df = pd.read_csv(file_path)
 
-    # Generate dataset summary for LLM
     summary = {
         "rows": df.shape[0],
         "columns": df.shape[1],
@@ -118,10 +117,6 @@ def agent_cleaning(file_path, instruction=None):
     else:
         code = chain.run(summary=summary, filepath=file_path)[9:-4]
 
-
-    # Save generated code
-    with open("generated_code.py", "w") as f:
-        f.write(code)
 
     # Temporary file for cleaned data
     temp_fd, temp_path = tempfile.mkstemp(suffix=".csv")

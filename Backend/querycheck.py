@@ -7,13 +7,12 @@ load_dotenv()
 def pool(query):
     groq_api_key = os.getenv("GROQ_API_KEY")
     llm = ChatGroq(
-        model="llama-3.3-70b-versatile",   # or "llama3-70b-8192" depending on your access
-        temperature=0,                # deterministic output
+        model="llama-3.3-70b-versatile",  
+        temperature=0,               
         max_tokens=5,
         groq_api_key=groq_api_key
     )
 
-    # Prompt template: force strict yes/no
     prompt = PromptTemplate(
         input_variables=["query"],
         template="""
@@ -31,7 +30,7 @@ def pool(query):
     )
 
 
-    # Create chain
+
     chain = LLMChain(llm=llm, prompt=prompt)
 
 

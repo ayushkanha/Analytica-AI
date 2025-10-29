@@ -30,21 +30,20 @@ app = FastAPI()
 @app.on_event("startup")
 async def startup_event():
     try:
-        # Check if the 'Chat' table exists
+       
         supabase.table('Chat').select('*', head=True).execute()
     except Exception as e:
         print("Error connecting to Supabase or finding 'Chat' table:")
         print(e)
-        # You might want to raise an exception here to prevent the app from starting
-        # raise e
 
-# Add CORS middleware
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins=["*"], 
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],  
+    allow_headers=["*"],  
 )
 
 class ContactForm(BaseModel):
@@ -289,7 +288,6 @@ async def generate_graph(request: TextRequest):
         c_id = request.c_id
         user_id = request.user_id
 
-        # Check if it's the first message for this chat
         messages_response = supabase.table('messages').select('id').eq('c_id', c_id).limit(1).execute()
         if not messages_response.data:
             if request.filename:
@@ -306,7 +304,6 @@ async def generate_graph(request: TextRequest):
             for attempt in range(max_retries):
                 try:
                     print(f"Graph generation attempt {attempt + 1}")
-                    # Pass the error feedback to the visualize function
                     graph_code = graphgen.visualize(df, query, error_feedback=error_feedback)
                     
                     exec_globals = {'pd': pd, 'df': df, 'go': None, 'px': None, 'fig': None}

@@ -13,7 +13,7 @@ import numpy as np
 url: str = os.getenv("SUPABASE_URL")
 key: str = os.getenv("SUPABASE_KEY")
 
-# Create the Supabase client
+
 supabase: Client = create_client(url, key)
 
 def visualize(df,query, error_feedback=None):

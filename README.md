@@ -39,13 +39,13 @@ Analytica-AI is an intelligent, AI-powered data analysis and visualization tool.
 ## Screenshots
 
 ### Home Page
-<img width="1920" alt="Home Page" src="./ss/home page.png" />
+<img width="1920" alt="Home Page" src="SS/home page.png" />
 
 ### Data Cleaning Page
-<img width="1165" alt="Data Cleaning Page" src="./ss/cleaning page.png" />
+<img width="1165" alt="Data Cleaning Page" src="SS/cleaning page.png" />
 
 ### Analysis Page
-<img width="894" alt="Analysis Page" src="./ss/chat bot.png" />
+<img width="894" alt="Analysis Page" src="SS/chat bot.png" />
 
 -----
 

@@ -12,14 +12,14 @@ load_dotenv()
 from supabase import create_client, Client
 import numpy as np
 
-
+model_name: str=os.getenv("GOOGLE_MODEL_NAME")
 url: str = os.getenv("SUPABASE_URL")
 key: str = os.getenv("SUPABASE_KEY")
 
 supabase: Client = create_client(url, key)
 def analyze(df, query, chat_history=None):
     google_api_key = os.getenv("google_api_key")
-    llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", google_api_key=google_api_key)
+    llm = ChatGoogleGenerativeAI(model=model_name, google_api_key=google_api_key)
 
     summary = {
         "rows": df.shape[0],
@@ -87,7 +87,7 @@ def analyze(df, query, chat_history=None):
     if query_code.startswith("```"):
         query_code = query_code.strip("`")
         query_code = query_code.split("python")[-1].strip()
-
+    print("Generated Query Code:\n", query_code)
     local_env = {"pd": pd, "df": df}
     exec(query_code, local_env)
     result_df = local_env.get("result")

@@ -344,6 +344,7 @@ async def generate_graph(request: TextRequest):
 
             for attempt in range(max_retries):
                 try:
+                    
                     print(f"Graph generation attempt {attempt + 1}")
                     graph_code = graphgen.visualize(df, query, error_feedback=error_feedback, chat_history=chat_history)
                     

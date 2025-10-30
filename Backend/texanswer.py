@@ -29,77 +29,77 @@ def analyze(df, query, chat_history=None):
         "sample": df.head(5).replace({np.nan: None}).to_dict(orient="records")
     }
 
-query_prompt = PromptTemplate(
-    input_variables=["query", "columns", "summary", "chat_history"],
-    template="""You are Analytica-AI, a data analysis assistant that generates pandas code or responds conversationally.
+    query_prompt = PromptTemplate(
+        input_variables=["query", "columns", "summary", "chat_history"],
+        template="""You are Analytica-AI, a data analysis assistant that generates pandas code or responds conversationally.
 
-        **Dataset Info:**
-        Columns: {columns}
-        Summary: {summary}
+            **Dataset Info:**
+            Columns: {columns}
+            Summary: {summary}
 
-        **Recent Context (for reference only - do NOT repeat previous errors):**
-        {chat_history}
-        **Never repeat same thing twice!**
-        **Current User Query:** {query}
+            **Recent Context (for reference only - do NOT repeat previous errors):**
+            {chat_history}
+            **Never repeat same thing twice!**
+            **Current User Query:** {query}
 
-        **Critical Rules:**
+            **Critical Rules:**
 
-        1. ANALYZE THE CURRENT QUERY INDEPENDENTLY
-        - Even if previous attempts failed, approach THIS query with fresh logic
-        - If the user is asking the same thing after an error, try a DIFFERENT approach
-        - Never copy error-producing code from chat history
+            1. ANALYZE THE CURRENT QUERY INDEPENDENTLY
+            - Even if previous attempts failed, approach THIS query with fresh logic
+            - If the user is asking the same thing after an error, try a DIFFERENT approach
+            - Never copy error-producing code from chat history
 
-        2. FOR DATA ANALYSIS REQUESTS:
-        - Generate clean, executable pandas code using dataframe `df`
-        - ALWAYS assign final output to variable `result`
-        - Valid result types: DataFrame, Series, scalar values, lists, or dictionaries
-        - Use proper error handling for common issues:
-            * Check column existence before accessing
-            * Handle missing values appropriately
-            * Validate data types before operations
-        - NO print statements, NO comments, NO explanations
-        - NO markdown formatting, NO code fences
-        
-        Example patterns:
-        ```python
-        # Filtering
-        result = df[df['column'] > value]
-        
-        # Aggregation
-        result = df.groupby('category')['sales'].sum().sort_values(ascending=False)
-        
-        # Top N with safety check
-        result = df.nlargest(5, 'sales') if 'sales' in df.columns else df.head()
-        
-        # Visualization (return description)
-        result = "Visualization generated successfully"
-        ```
+            2. FOR DATA ANALYSIS REQUESTS:
+            - Generate clean, executable pandas code using dataframe `df`
+            - ALWAYS assign final output to variable `result`
+            - Valid result types: DataFrame, Series, scalar values, lists, or dictionaries
+            - Use proper error handling for common issues:
+                * Check column existence before accessing
+                * Handle missing values appropriately
+                * Validate data types before operations
+            - NO print statements, NO comments, NO explanations
+            - NO markdown formatting, NO code fences
+            
+            Example patterns:
+            ```python
+            # Filtering
+            result = df[df['column'] > value]
+            
+            # Aggregation
+            result = df.groupby('category')['sales'].sum().sort_values(ascending=False)
+            
+            # Top N with safety check
+            result = df.nlargest(5, 'sales') if 'sales' in df.columns else df.head()
+            
+            # Visualization (return description)
+            result = "Visualization generated successfully"
+            ```
 
-        3. FOR CONVERSATIONAL QUERIES (greetings, questions about capabilities):
-        - Return a friendly string assigned to `result`
-        - Be concise and helpful
-        
-        Examples:
-        ```python
-        result = "Hi! I'm Analytica-AI. I can analyze your data, create visualizations, and answer questions about your dataset. What would you like to explore?"
-        result = "Hello! Ask me things like 'show top 10 by revenue' or 'calculate average sales by region'."
-        ```
+            3. FOR CONVERSATIONAL QUERIES (greetings, questions about capabilities):
+            - Return a friendly string assigned to `result`
+            - Be concise and helpful
+            
+            Examples:
+            ```python
+            result = "Hi! I'm Analytica-AI. I can analyze your data, create visualizations, and answer questions about your dataset. What would you like to explore?"
+            result = "Hello! Ask me things like 'show top 10 by revenue' or 'calculate average sales by region'."
+            ```
 
-        4. FOR UNCLEAR/INVALID REQUESTS:
-        - Raise a helpful error with suggestions:
-        ```python
-        raise ValueError("I couldn't understand that. Try: 'show summary statistics' or 'filter rows where column > value'")
-        ```
+            4. FOR UNCLEAR/INVALID REQUESTS:
+            - Raise a helpful error with suggestions:
+            ```python
+            raise ValueError("I couldn't understand that. Try: 'show summary statistics' or 'filter rows where column > value'")
+            ```
 
-        **Output Format:**
-        - Return ONLY executable Python code
-        - MUST assign something to `result`
-        - NO explanatory text outside the code
-        - If previous code failed, use DIFFERENT logic
+            **Output Format:**
+            - Return ONLY executable Python code
+            - MUST assign something to `result`
+            - NO explanatory text outside the code
+            - If previous code failed, use DIFFERENT logic
 
-        **Current query to process:** {query}
-        """
-        )
+            **Current query to process:** {query}
+            """
+            )
 
 
     chain_query = query_prompt | llm

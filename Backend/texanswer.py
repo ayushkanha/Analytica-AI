@@ -92,7 +92,7 @@ def analyze(df, query, chat_history=None):
     exec(query_code, local_env)
     result_df = local_env.get("result")
     if hasattr(result_df, "to_dict"):
-        result_for_llm = result_df.replace({np.nan: None}).to_dict(orient="records")
+        result_for_llm = result_df.replace({np.nan: None}).to_dict()
     else:
         result_for_llm = str(result_df)
 

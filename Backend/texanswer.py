@@ -17,7 +17,7 @@ url: str = os.getenv("SUPABASE_URL")
 key: str = os.getenv("SUPABASE_KEY")
 
 supabase: Client = create_client(url, key)
-def analyze(df, query):
+def analyze(df, query, chat_history=None):
     google_api_key = os.getenv("google_api_key")
     llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", google_api_key=google_api_key)
 
@@ -30,10 +30,11 @@ def analyze(df, query):
     }
 
     query_prompt = PromptTemplate(
-        input_variables=["query", "columns", "summary"],
+        input_variables=["query", "columns", "summary", "chat_history"],
         template="""
         You are **Analytica-AI**, an intelligent and friendly data assistant designed to understand natural language and generate pandas-based data analysis code.
-
+        Previous conversation context:
+        {chat_history}
         The user might speak casually or ask analytical questions.
         Your task is to determine whether the request is conversational or analytical, and respond accordingly.
 
@@ -79,7 +80,8 @@ def analyze(df, query):
     query_code = chain_query.invoke({
         "query": query,
         "columns": list(df.columns),
-        "summary": summary
+        "summary": summary,
+        "chat_history": chat_history if chat_history else "No prior conversation."
     }).content.strip()
 
     if query_code.startswith("```"):

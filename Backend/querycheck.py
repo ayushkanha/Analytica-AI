@@ -4,7 +4,7 @@ from langchain.chains import LLMChain
 import os
 from dotenv import load_dotenv
 load_dotenv()
-def pool(query):
+def pool(query,chat_history=None):
     groq_api_key = os.getenv("GROQ_API_KEY")
     llm = ChatGroq(
         model="llama-3.3-70b-versatile",  
@@ -13,11 +13,13 @@ def pool(query):
         groq_api_key=groq_api_key
     )
 
+
     prompt = PromptTemplate(
-        input_variables=["query"],
+        input_variables=["query","chat_history"],
         template="""
     You are a strict classifier for data queries.
-
+    Previous conversation context:
+    {chat_history}
     Rules:
     1. Answer ONLY with "yes" or "no".
     2. "yes" → if the query asks for trends, comparisons, correlations, distributions, patterns, or anything best shown with a chart/graph.
@@ -34,6 +36,6 @@ def pool(query):
     chain = LLMChain(llm=llm, prompt=prompt)
 
 
-    result = chain.run({"query": query})
+    result = chain.run({"query": query, "chat_history": chat_history if chat_history else "No prior conversation."})
     print("Classifier result:", result.strip().lower())
     return result.strip().lower()

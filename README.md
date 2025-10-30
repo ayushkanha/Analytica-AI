@@ -48,10 +48,10 @@ Analytica-AI is an intelligent, AI-powered data analysis and visualization tool.
 <img width="894" alt="Analysis Page" src="SS/chat bot.png" />
 
 ### Dashboard Page
-![dashboard](https://github.com/user-attachments/assets/00edb49e-2575-43f3-ba7e-29d31b01a876)
+![Dashboard](https://github.com/user-attachments/assets/00edb49e-2575-43f3-ba7e-29d31b01a876)
 
 -----
-
+  
 ## Getting Started
 
 Follow these instructions to get a copy of the project up and running on your local machine for development and testing purposes.

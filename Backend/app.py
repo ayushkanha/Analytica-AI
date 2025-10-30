@@ -288,12 +288,53 @@ async def generate_graph(request: TextRequest):
         c_id = request.c_id
         user_id = request.user_id
 
+        # checking if the chat have a message if not will update the chat name
         messages_response = supabase.table('messages').select('id').eq('c_id', c_id).limit(1).execute()
         if not messages_response.data:
             if request.filename:
                 supabase.table('Chat').update({'name': request.filename}).eq('c_id', c_id).execute()
+
+        # fetching last 5 messages for context
+        history_response = supabase.table('messages').select("*").eq('c_id', c_id).order('created_at', desc=True).limit(5).execute()
+        raw_history = history_response.data
+        raw_history.reverse() # Reverses to have the oldest message first
         
-        is_graph = querycheck.pool(query)
+        chat_history = []
+        for message in raw_history:
+            user_msg = message.get('user_message')
+            response_data = message.get('response')
+            
+            # Simple summarization for token efficiency
+            if user_msg:
+                chat_history.append({"role": "user", "content": user_msg})
+                
+            if response_data and isinstance(response_data, dict):
+                response_type = response_data.get('type')
+                response_content = response_data.get('data')
+                
+                ai_msg = ""
+                if response_type == 'text':
+                    # Truncate long text answers
+                    text_content = str(response_content)
+                    ai_msg = text_content[:200] + "..." if len(text_content) > 200 else text_content
+                elif response_type == 'plot':
+                    # For a plot, extract the title or a generic description
+                    plot_title = None
+                    if isinstance(response_content, dict) and "layout" in response_content and "title" in response_content["layout"]:
+                        title_obj = response_content["layout"]["title"]
+                        plot_title = title_obj.get("text") if isinstance(title_obj, dict) else title_obj
+                    
+                    ai_msg = f"Generated a plot (type: {response_type}): {plot_title or 'No title available'}"
+                
+                if ai_msg:
+                    chat_history.append({"role": "assistant", "content": ai_msg})
+
+        # checking for chat history
+        print(f"Passing history with {len(chat_history)} messages for context.")
+
+
+
+        is_graph = querycheck.pool(query,chat_history)
         
         response_data = None
         if is_graph == "yes":
@@ -304,7 +345,7 @@ async def generate_graph(request: TextRequest):
             for attempt in range(max_retries):
                 try:
                     print(f"Graph generation attempt {attempt + 1}")
-                    graph_code = graphgen.visualize(df, query, error_feedback=error_feedback)
+                    graph_code = graphgen.visualize(df, query, error_feedback=error_feedback, chat_history=chat_history)
                     
                     exec_globals = {'pd': pd, 'df': df, 'go': None, 'px': None, 'fig': None}
                     exec(graph_code, exec_globals)
@@ -314,7 +355,7 @@ async def generate_graph(request: TextRequest):
                         print("Graph generated successfully.")
                         break 
                     else:
-                        raise ValueError("Generated code did not produce a 'fig' object.")
+                        raise ValueError("Error occured during generation.")
 
                 except Exception as e:
                     print(f"Attempt {attempt + 1} failed: {e}")
@@ -326,7 +367,7 @@ async def generate_graph(request: TextRequest):
                 response_data = {"type": "plot", "data": json.loads(fig.to_json())}
             
         else:
-            text_answer = texanswer.analyze(df,query)
+            text_answer = texanswer.analyze(df,query,chat_history)
             response_data = {"type": "text", "data": text_answer}
 
         insert_data = {

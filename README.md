@@ -2,7 +2,7 @@
 
 ## Live Preview
 
-*[Link to your deployed project will go here]*
+*[Live Demo](https://analytica-ai-five.vercel.app/)*
 
 > **Note:** Our backend is currently hosted on a free tier, so it may temporarily stop. If you don't see any changes after clicking buttons, don't be alarmed - just wait 30 seconds and the backend will automatically restart.
 

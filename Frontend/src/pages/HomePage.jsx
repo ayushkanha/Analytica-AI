@@ -224,18 +224,19 @@ const HomePage = ({ setActivePage }) => {
       {/* Video Player Modal */}
       {isVideoPlayerOpen && (
         <Draggable nodeRef={nodeRef} handle=".video-player-header">
-          <div ref={nodeRef} className="video-player-overlay fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-3xl h-[70vh] max-h-[500px] bg-slate-900/90 backdrop-blur-sm border border-white/10 rounded-lg shadow-2xl z-50">
+          <div ref={nodeRef} className="video-player-overlay fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-xl h-[70vh] max-h-[380px] bg-slate-900/90 backdrop-blur-sm border border-white/10 rounded-lg shadow-2xl z-50">
             <div className="video-player-header flex justify-between items-center p-3 bg-slate-800/80 text-white cursor-move">
               <h3 className="text-lg font-medium">Analytica.ai Demo</h3>
               <button onClick={closeVideoPlayer} className="text-2xl hover:text-red-500 transition-colors">
                 &times;
               </button>
             </div>
-            <div className="video-player-content w-full h-[calc(100%-48px)]">
+            <div className="video-player-content pl-2 w-full h-[calc(100%-20px)]">
               <iframe
-                className="w-full h-full"
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
+                width="560" height="315"
+                src={import.meta.env.VITE_DEMO_VIDEO_URL}
                 title="YouTube video player"
+
                 frameBorder="0"
                 allow="accelerometer; autoplay; encrypted-media; gyroscope;"
                 allowFullScreen
@@ -277,7 +278,7 @@ const HomePage = ({ setActivePage }) => {
                   onClick={openVideoPlayer} 
                   className="inline-flex items-center justify-center gap-2 rounded-md bg-white/10 px-5 py-3 text-sm font-medium text-white border border-white/10 hover:bg-white/15 lift"
                 >
-                  <PlayCircle className="h-5 w-5 text-cyan-400" /> View live demo
+                  <PlayCircle className="h-5 w-5 text-cyan-400" /> View demo
                 </button>
                 <button 
                   onClick={handleButtonClick} 
